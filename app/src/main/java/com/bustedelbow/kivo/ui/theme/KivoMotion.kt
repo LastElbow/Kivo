@@ -1,7 +1,10 @@
 package com.bustedelbow.kivo.ui.theme
 
+import android.animation.ValueAnimator
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.spring
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 
 /**
  * Kivo's hand-rolled motion spring tokens (ADR-0007).
@@ -29,3 +32,12 @@ object KivoMotion {
     fun <T> effects(visibilityThreshold: T? = null): SpringSpec<T> =
         spring(dampingRatio = 1.0f, stiffness = 1600f, visibilityThreshold = visibilityThreshold)
 }
+
+/**
+ * Whether the user has asked Android to reduce motion: its animator duration scale is zero, which
+ * the Accessibility "Remove animations" setting also sets. Screens read this to skip a flourish and
+ * snap to the resting state instead (ADR-0007's hero moments). Reads once per composition, so a
+ * settings change mid-screen is not observed.
+ */
+@Composable
+fun rememberReducedMotion(): Boolean = remember { !ValueAnimator.areAnimatorsEnabled() }

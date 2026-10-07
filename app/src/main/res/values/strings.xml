@@ -44,6 +44,7 @@
     <string name="add_entry_date_label">Date</string>
     <string name="add_entry_note_label">Note (optional)</string>
     <string name="add_entry_save">Save</string>
+    <string name="add_entry_saved">Entry saved</string>
     <string name="add_entry_cancel">Cancel</string>
     <string name="add_entry_date_confirm">OK</string>
     <string name="add_entry_amount_error">Enter an amount greater than zero.</string>
