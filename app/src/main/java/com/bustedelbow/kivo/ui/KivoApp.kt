@@ -12,6 +12,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -64,6 +65,7 @@ private fun KivoBottomBar(navController: NavHostController) {
     NavigationBar {
         KivoDestination.entries.forEach { destination ->
             NavigationBarItem(
+                modifier = Modifier.testTag(destination.navItemTestTag),
                 selected = currentRoute == destination.route,
                 onClick = { navController.navigateToTopLevel(destination) },
                 icon = { Icon(imageVector = destination.icon, contentDescription = null) },

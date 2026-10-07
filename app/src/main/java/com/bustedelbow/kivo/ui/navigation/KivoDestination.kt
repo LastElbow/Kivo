@@ -33,4 +33,8 @@ enum class KivoDestination(
         labelRes = R.string.destination_settings,
         icon = Icons.Filled.Settings,
     ),
+    ;
+
+    /** Stable tag for the bottom-bar item, shared with UI tests. */
+    val navItemTestTag: String get() = "nav_$route"
 }
