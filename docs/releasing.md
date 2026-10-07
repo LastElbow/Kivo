@@ -49,12 +49,17 @@ $keystore = "$env:USERPROFILE\.kivo\kivo-release.jks"
 $b64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes($keystore))
 gh secret set RELEASE_KEYSTORE_BASE64 --body $b64
 gh secret set RELEASE_KEY_ALIAS --body kivo
-gh secret set RELEASE_STORE_PASSWORD   # prompts, so the password stays out of history
-gh secret set RELEASE_KEY_PASSWORD
+foreach ($name in 'RELEASE_STORE_PASSWORD', 'RELEASE_KEY_PASSWORD') {
+    $value = Read-Host "Value for $name"
+    if ([string]::IsNullOrWhiteSpace($value)) { throw "refusing to set an empty $name" }
+    gh secret set $name --body $value
+}
 gh secret list
 ```
 
-Base64 is only there to move a binary file through a text field; it is not protection, which is why the two passwords are typed interactively instead of passed as arguments.
+Base64 is only there to move a binary file through a text field; it is not protection. The passwords are read by `Read-Host` and passed with `--body`, so they never reach the command line or the shell history.
+
+**Never set a password with a bare `gh secret set NAME`.** With no value argument `gh` reads stdin, and when stdin is not a terminal — a pipe, a redirect, a linter or script runner, some integrated terminals — it stores an **empty** secret and still exits `0`. `gh secret list` shows the name and nothing else, so the mistake only surfaces on the next release, as `Repository secrets not set: RELEASE_STORE_PASSWORD RELEASE_KEY_PASSWORD` from the guard step. If the guard names a secret you believe you set, re-set it with `--body` and dispatch the workflow again.
 
 ## Cutting a release
 
