@@ -3,6 +3,8 @@ package com.bustedelbow.kivo.di
 import android.content.Context
 import androidx.room.Room
 import com.bustedelbow.kivo.data.local.KivoDatabase
+import com.bustedelbow.kivo.data.preferences.AppearanceRepository
+import com.bustedelbow.kivo.data.preferences.createAppearanceRepository
 import com.bustedelbow.kivo.data.repository.AccountRepository
 import com.bustedelbow.kivo.data.repository.CategoryRepository
 import com.bustedelbow.kivo.data.repository.EntryRepository
@@ -34,4 +36,6 @@ class AppContainer(
 
     val entryRepository: EntryRepository =
         EntryRepository(database.entryDao(), database.accountDao(), database.categoryDao())
+
+    val appearanceRepository: AppearanceRepository = createAppearanceRepository(context)
 }
