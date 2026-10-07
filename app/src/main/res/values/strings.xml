@@ -4,4 +4,27 @@
     <string name="destination_home">Home</string>
     <string name="destination_accounts">Accounts</string>
     <string name="destination_settings">Settings</string>
+
+    <string name="home_total_label">Total balance</string>
+    <string name="home_accounts_title">Accounts</string>
+    <string name="home_empty_title">No accounts yet</string>
+    <string name="home_empty_body">Create your first account to start tracking your money.</string>
+    <string name="home_empty_action">Create an account</string>
+
+    <string name="accounts_empty_title">No accounts yet</string>
+    <string name="accounts_empty_body">Add an account to record where your money lives.</string>
+    <string name="accounts_empty_action">Create an account</string>
+    <string name="accounts_add_fab">Add account</string>
+
+    <string name="create_account_title">New account</string>
+    <string name="create_account_name_label">Name</string>
+    <string name="create_account_type_label">Type</string>
+    <string name="create_account_opening_balance_label">Opening balance</string>
+    <string name="create_account_confirm">Create</string>
+    <string name="create_account_cancel">Cancel</string>
+
+    <string name="account_type_bank">Bank</string>
+    <string name="account_type_e_wallet">E-Wallet</string>
+    <string name="account_type_cash">Cash</string>
+    <string name="account_type_other">Other</string>
 </resources>
