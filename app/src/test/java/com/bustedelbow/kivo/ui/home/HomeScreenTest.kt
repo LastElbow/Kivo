@@ -73,5 +73,6 @@ class HomeScreenTest {
         composeRule.onNodeWithTag(HOME_LIST_TEST_TAG).performScrollToNode(hasText("Food"))
 
         composeRule.onNodeWithText("Food").assertExists()
+        composeRule.onNodeWithText("−₱120.00").assertExists()
     }
 }

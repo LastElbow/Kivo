@@ -34,11 +34,12 @@ import com.bustedelbow.kivo.R
 import com.bustedelbow.kivo.domain.model.EntrySummary
 import com.bustedelbow.kivo.ui.LocalAppContainer
 import com.bustedelbow.kivo.ui.components.AccountRow
+import com.bustedelbow.kivo.ui.components.AmountKind
+import com.bustedelbow.kivo.ui.components.AmountText
 import com.bustedelbow.kivo.ui.components.EmptyAccountsState
 import com.bustedelbow.kivo.ui.components.EntryRow
 import com.bustedelbow.kivo.ui.components.LoadingState
 import com.bustedelbow.kivo.ui.components.withGutters
-import com.bustedelbow.kivo.ui.format.formatPhp
 import com.bustedelbow.kivo.ui.theme.KivoType
 
 /** Stable tag for Home's scrolling list, shared with UI tests. */
@@ -172,8 +173,9 @@ private fun TotalBalanceCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = formatPhp(totalMinorUnits),
+            AmountText(
+                amountMinorUnits = totalMinorUnits,
+                kind = AmountKind.NEUTRAL,
                 style = KivoType.emphasized.headlineMedium,
             )
         }
@@ -190,12 +192,14 @@ private fun WeekSummaryCard(
         Row(modifier = Modifier.padding(20.dp)) {
             AmountColumn(
                 label = stringResource(R.string.home_spend_label),
-                amountMinorUnits = spendMinorUnits,
+                amountMinorUnits = -spendMinorUnits,
+                kind = AmountKind.EXPENSE,
                 modifier = Modifier.weight(1f),
             )
             AmountColumn(
                 label = stringResource(R.string.home_income_label),
                 amountMinorUnits = incomeMinorUnits,
+                kind = AmountKind.INCOME,
                 modifier = Modifier.weight(1f),
             )
         }
@@ -206,6 +210,7 @@ private fun WeekSummaryCard(
 private fun AmountColumn(
     label: String,
     amountMinorUnits: Long,
+    kind: AmountKind,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
@@ -215,9 +220,10 @@ private fun AmountColumn(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = formatPhp(amountMinorUnits),
-            style = MaterialTheme.typography.titleLarge,
+        AmountText(
+            amountMinorUnits = amountMinorUnits,
+            kind = kind,
+            style = KivoType.emphasized.titleLarge,
         )
     }
 }
