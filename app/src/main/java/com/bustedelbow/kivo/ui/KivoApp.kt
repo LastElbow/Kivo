@@ -21,8 +21,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.bustedelbow.kivo.KivoApplication
 import com.bustedelbow.kivo.ui.accounts.AccountsScreen
+import com.bustedelbow.kivo.ui.addentry.AddEntryScreen
 import com.bustedelbow.kivo.ui.home.HomeScreen
 import com.bustedelbow.kivo.ui.navigation.KivoDestination
+import com.bustedelbow.kivo.ui.navigation.KivoRoute
 import com.bustedelbow.kivo.ui.settings.SettingsScreen
 
 /**
@@ -36,9 +38,14 @@ fun KivoApp(modifier: Modifier = Modifier) {
     val container = (LocalContext.current.applicationContext as KivoApplication).container
     CompositionLocalProvider(LocalAppContainer provides container) {
         val navController = rememberNavController()
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentRoute = navBackStackEntry?.destination?.route
+        val isTopLevelDestination = KivoDestination.entries.any { it.route == currentRoute }
         Scaffold(
             modifier = modifier.fillMaxSize(),
-            bottomBar = { KivoBottomBar(navController = navController) },
+            bottomBar = {
+                if (isTopLevelDestination) KivoBottomBar(navController = navController)
+            },
         ) { innerPadding ->
             NavHost(
                 navController = navController,
@@ -51,6 +58,9 @@ fun KivoApp(modifier: Modifier = Modifier) {
                         onCreateAccount = {
                             navController.navigateToTopLevel(KivoDestination.ACCOUNTS)
                         },
+                        onAddEntry = {
+                            navController.navigate(KivoRoute.ADD_ENTRY)
+                        },
                     )
                 }
                 composable(KivoDestination.ACCOUNTS.route) {
@@ -58,6 +68,12 @@ fun KivoApp(modifier: Modifier = Modifier) {
                 }
                 composable(KivoDestination.SETTINGS.route) {
                     SettingsScreen(contentPadding = innerPadding)
+                }
+                composable(KivoRoute.ADD_ENTRY) {
+                    AddEntryScreen(
+                        contentPadding = innerPadding,
+                        onDone = { navController.popBackStack() },
+                    )
                 }
             }
         }

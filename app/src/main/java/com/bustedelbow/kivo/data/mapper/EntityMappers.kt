@@ -12,6 +12,7 @@ import com.bustedelbow.kivo.domain.model.Entry
 import com.bustedelbow.kivo.domain.model.EntryType
 import com.bustedelbow.kivo.domain.model.ExpenseEntry
 import com.bustedelbow.kivo.domain.model.IncomeEntry
+import com.bustedelbow.kivo.domain.model.NewEntry
 import com.bustedelbow.kivo.domain.model.TransferEntry
 
 /**
@@ -76,3 +77,21 @@ fun EntryEntity.toDomain(): Entry =
                 note = note,
             )
     }
+
+/**
+ * Turns a [NewEntry] into a row. Only Expense and Income Entries are recorded in this slice, so a
+ * Transfer or Adjustment here is a programming error rather than user input (issue #4).
+ */
+fun NewEntry.toEntity(): EntryEntity {
+    require(type == EntryType.EXPENSE || type == EntryType.INCOME) {
+        "Only Expense and Income entries are recorded in this slice, not $type"
+    }
+    return EntryEntity(
+        type = type.name,
+        accountId = accountId,
+        categoryId = categoryId,
+        amountMinorUnits = amountMinorUnits,
+        occurredOnEpochDay = occurredOnEpochDay,
+        note = note,
+    )
+}

@@ -170,4 +170,63 @@ class LedgerTest {
 
         assertEquals(15_500L, Ledger.spendOf(entries, period))
     }
+
+    @Test
+    fun `income sums only income entries inside the period`() {
+        val period = Period(startEpochDay = 20_000, endEpochDay = 20_006)
+        val entries =
+            listOf(
+                IncomeEntry( // inside
+                    id = 1,
+                    accountId = 1,
+                    categoryId = 1,
+                    amountMinorUnits = 40_000,
+                    occurredOnEpochDay = 20_000,
+                ),
+                IncomeEntry( // outside
+                    id = 2,
+                    accountId = 1,
+                    categoryId = 1,
+                    amountMinorUnits = 7_000,
+                    occurredOnEpochDay = 20_007,
+                ),
+                ExpenseEntry( // expense, not income
+                    id = 3,
+                    accountId = 1,
+                    categoryId = 2,
+                    amountMinorUnits = 12_000,
+                    occurredOnEpochDay = 20_001,
+                ),
+            )
+
+        assertEquals(40_000L, Ledger.incomeOf(entries, period))
+    }
+
+    @Test
+    fun `signed amount is negative for an expense and positive for an income`() {
+        assertEquals(
+            -20_000L,
+            Ledger.signedAmountOf(
+                ExpenseEntry(
+                    id = 1,
+                    accountId = 1,
+                    categoryId = 2,
+                    amountMinorUnits = 20_000,
+                    occurredOnEpochDay = 20_000,
+                ),
+            ),
+        )
+        assertEquals(
+            50_000L,
+            Ledger.signedAmountOf(
+                IncomeEntry(
+                    id = 2,
+                    accountId = 1,
+                    categoryId = 1,
+                    amountMinorUnits = 50_000,
+                    occurredOnEpochDay = 20_000,
+                ),
+            ),
+        )
+    }
 }

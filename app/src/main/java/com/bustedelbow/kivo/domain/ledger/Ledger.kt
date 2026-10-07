@@ -37,6 +37,18 @@ object Ledger {
         entries: List<Entry>,
     ): Long = account.openingBalanceMinorUnits + entries.sumOf { deltaFor(it, account.id) }
 
+    /**
+     * The signed amount [entry] shows in history, relative to the Account the user recorded it
+     * against: negative for money leaving, positive for money arriving.
+     */
+    fun signedAmountOf(entry: Entry): Long =
+        when (entry) {
+            is ExpenseEntry -> deltaFor(entry, entry.accountId)
+            is IncomeEntry -> deltaFor(entry, entry.accountId)
+            is AdjustmentEntry -> deltaFor(entry, entry.accountId)
+            is TransferEntry -> deltaFor(entry, entry.fromAccountId)
+        }
+
     /** Every Account paired with its derived Balance, in the order given. */
     fun balancesOf(
         accounts: List<Account>,
@@ -56,6 +68,16 @@ object Ledger {
     ): Long =
         entries
             .filterIsInstance<ExpenseEntry>()
+            .filter { period.contains(it.occurredOnEpochDay) }
+            .sumOf { it.amountMinorUnits }
+
+    /** The Income in [period]: the sum of Income Entries inside it. */
+    fun incomeOf(
+        entries: List<Entry>,
+        period: Period,
+    ): Long =
+        entries
+            .filterIsInstance<IncomeEntry>()
             .filter { period.contains(it.occurredOnEpochDay) }
             .sumOf { it.amountMinorUnits }
 }

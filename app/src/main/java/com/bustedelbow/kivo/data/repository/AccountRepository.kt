@@ -5,10 +5,12 @@ import com.bustedelbow.kivo.data.local.dao.EntryDao
 import com.bustedelbow.kivo.data.local.entity.AccountEntity
 import com.bustedelbow.kivo.data.mapper.toDomain
 import com.bustedelbow.kivo.domain.ledger.Ledger
+import com.bustedelbow.kivo.domain.model.Account
 import com.bustedelbow.kivo.domain.model.AccountBalance
 import com.bustedelbow.kivo.domain.model.NewAccount
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 
 /**
  * Reads and writes Accounts, and derives each one's Balance from its Entries (ADR-0002). Balances
@@ -24,6 +26,9 @@ class AccountRepository(
             val domainEntries = entries.map { it.toDomain() }
             Ledger.balancesOf(accounts.map { it.toDomain() }, domainEntries)
         }
+
+    /** The active Accounts as domain types, ordered by name, for pickers that need no Balance. */
+    fun observeActiveAccounts(): Flow<List<Account>> = accountDao.observeActive().map { accounts -> accounts.map { it.toDomain() } }
 
     /** Creates an Account and returns its generated id. */
     suspend fun createAccount(account: NewAccount): Long =

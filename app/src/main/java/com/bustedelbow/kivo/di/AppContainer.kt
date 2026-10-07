@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.bustedelbow.kivo.data.local.KivoDatabase
 import com.bustedelbow.kivo.data.repository.AccountRepository
 import com.bustedelbow.kivo.data.repository.CategoryRepository
+import com.bustedelbow.kivo.data.repository.EntryRepository
 
 /**
  * The manual dependency container (ADR-0001 keeps the graph small enough not to need Hilt).
@@ -30,4 +31,7 @@ class AppContainer(
         AccountRepository(database.accountDao(), database.entryDao())
 
     val categoryRepository: CategoryRepository = CategoryRepository(database.categoryDao())
+
+    val entryRepository: EntryRepository =
+        EntryRepository(database.entryDao(), database.accountDao(), database.categoryDao())
 }

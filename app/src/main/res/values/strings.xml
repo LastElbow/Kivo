@@ -7,6 +7,11 @@
 
     <string name="home_total_label">Total balance</string>
     <string name="home_accounts_title">Accounts</string>
+    <string name="home_spend_label">Spent this week</string>
+    <string name="home_income_label">Income this week</string>
+    <string name="home_recent_title">Recent</string>
+    <string name="home_recent_empty">No entries yet. Record your first Expense or Income.</string>
+    <string name="home_add_entry_fab">Add entry</string>
     <string name="home_empty_title">No accounts yet</string>
     <string name="home_empty_body">Create your first account to start tracking your money.</string>
     <string name="home_empty_action">Create an account</string>
@@ -27,4 +32,22 @@
     <string name="account_type_e_wallet">E-Wallet</string>
     <string name="account_type_cash">Cash</string>
     <string name="account_type_other">Other</string>
+
+    <string name="add_entry_title">New entry</string>
+    <string name="add_entry_close">Close</string>
+    <string name="add_entry_type_label">Type</string>
+    <string name="add_entry_amount_label">Amount</string>
+    <string name="add_entry_account_label">Account</string>
+    <string name="add_entry_category_label">Category</string>
+    <string name="add_entry_date_label">Date</string>
+    <string name="add_entry_note_label">Note (optional)</string>
+    <string name="add_entry_save">Save</string>
+    <string name="add_entry_cancel">Cancel</string>
+    <string name="add_entry_date_confirm">OK</string>
+    <string name="add_entry_amount_error">Enter an amount greater than zero.</string>
+    <string name="add_entry_date_error">The date cannot be in the future.</string>
+    <string name="add_entry_accounts_empty">Add an account before recording an entry.</string>
+    <string name="entry_type_expense">Expense</string>
+    <string name="entry_type_income">Income</string>
+    <string name="entry_uncategorised">Uncategorised</string>
 </resources>

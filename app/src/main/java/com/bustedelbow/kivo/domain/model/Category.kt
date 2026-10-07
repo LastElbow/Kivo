@@ -18,3 +18,14 @@ enum class CategoryType {
     EXPENSE,
     INCOME,
 }
+
+/**
+ * Whether this Category can label an Entry of [type]. An Expense Entry carries an Expense
+ * Category, an Income Entry an Income Category; Transfers and Adjustments carry none.
+ */
+fun Category.matches(type: EntryType): Boolean =
+    when (type) {
+        EntryType.EXPENSE -> this.type == CategoryType.EXPENSE
+        EntryType.INCOME -> this.type == CategoryType.INCOME
+        EntryType.TRANSFER, EntryType.ADJUSTMENT -> false
+    }

@@ -4,6 +4,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.bustedelbow.kivo.data.local.entity.AccountEntity
+import com.bustedelbow.kivo.data.local.entity.EntryEntity
 import com.bustedelbow.kivo.domain.model.AccountType
 import com.bustedelbow.kivo.domain.model.CategoryType
 import kotlinx.coroutines.flow.first
@@ -81,5 +82,46 @@ class KivoDatabaseTest {
                     .map { it.name }
 
             assertEquals(listOf("Bank", "Wallet"), names)
+        }
+
+    @Test
+    fun `inserts entries and lists them newest first`() =
+        runBlocking {
+            val accountId =
+                database.accountDao().insert(
+                    AccountEntity(name = "Bank", type = AccountType.BANK.name, openingBalanceMinorUnits = 0),
+                )
+            val categoryId =
+                database
+                    .categoryDao()
+                    .observeActive()
+                    .first()
+                    .first { it.type == CategoryType.EXPENSE.name }
+                    .id
+
+            database.entryDao().insert(
+                EntryEntity(
+                    type = "EXPENSE",
+                    accountId = accountId,
+                    categoryId = categoryId,
+                    amountMinorUnits = 1_000,
+                    occurredOnEpochDay = 20_000,
+                ),
+            )
+            database.entryDao().insert(
+                EntryEntity(
+                    type = "INCOME",
+                    accountId = accountId,
+                    categoryId = categoryId,
+                    amountMinorUnits = 2_000,
+                    occurredOnEpochDay = 20_001,
+                ),
+            )
+
+            val all = database.entryDao().observeAll().first()
+            val recent = database.entryDao().observeRecent(limit = 1).first()
+
+            assertEquals(2, all.size)
+            assertEquals(20_001L, recent.single().occurredOnEpochDay)
         }
 }
