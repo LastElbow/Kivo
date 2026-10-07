@@ -83,6 +83,8 @@ To release an existing tag, or to retry after a failure, run the workflow by han
 gh workflow run Release -f tag=v1.0.0
 ```
 
+The job checks out the tag, so everything it needs has to exist at that commit. Retrying a tag cut before a change to the release job fails — the error names the missing file, commonly a local action added later (`Can't find 'action.yml' ... Did you forget to run actions/checkout?`). Cut a new tag instead of re-releasing one that predates the job's own tooling.
+
 The job needs no manual approval. To inspect an APK before it goes public, add `--draft` to the `gh release create` line in the workflow.
 
 ## Signing locally
