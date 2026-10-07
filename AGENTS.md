@@ -24,4 +24,6 @@ Android and Compose guidance lives in `.agents/skills/`; consult the matching sk
 
 Run `./gradlew :app:check` before calling work done: it runs lint, ktlint and the tests, matching CI (`.github/workflows/ci.yml` runs `:app:assembleDebug :app:check`). Compose UI tests run on the JVM under Robolectric in `:app:testDebugUnitTest`; `app/src/test/java/com/bustedelbow/kivo/ui/KivoAppNavigationTest.kt` is the pattern. The full strategy is in `docs/testing.md`.
 
-A `NoSuchFileException` naming `.../testDebugUnitTest/binary/in-progress-results-generic.bin` is a build-directory race between two Gradle builds sharing `app/build`; delete `app/build/test-results/testDebugUnitTest` and re-run, because the tests themselves have not failed.
+A `NoSuchFileException` or `EOFException` from `:app:testDebugUnitTest` is a build-directory race between two Gradle builds sharing `app/build`; delete `app/build/test-results/testDebugUnitTest` and re-run, because the tests themselves have not failed.
+
+If files you did not touch change or fail to compile, another session may share this checkout. Verify in an isolated `git worktree` rather than the shared tree — see "Verifying in isolation" in `docs/testing.md`.

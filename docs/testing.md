@@ -16,6 +16,8 @@ Kivo's testing strategy and the commands that run it. The verification pointer i
 
 Money and balance maths is pure Kotlin and tested directly. ViewModels and repositories are tested against the in-memory DAO fakes in `data/FakeDaos.kt`; the Room layer runs against a real in-memory database.
 
+Robolectric lays the window out at a default **320×470dp**; pin a realistic device for anything layout-sensitive — `@Config(qualifiers = "w360dp-h800dp")` on the test method.
+
 ## Commands
 
 | Task | Command |
@@ -26,6 +28,28 @@ Money and balance maths is pure Kotlin and tested directly. ViewModels and repos
 | Lint and ktlint | `./gradlew :app:lintDebug :app:ktlintCheck` |
 
 `:app:check` is the gate: lint, ktlint and every JVM test. CI (`.github/workflows/ci.yml`) runs it on every push and pull request. Instrumented tests in `app/src/androidTest/` need a device and are not part of CI.
+
+## Verifying in isolation
+
+`:app:check` writes to `app/build`, so two sessions sharing one checkout race there (see the build-directory race in `AGENTS.md`). When that happens — or when files you did not touch change or fail to compile — verify in a throwaway worktree instead of the shared tree:
+
+```powershell
+git worktree add --detach ../Kivo-verify HEAD
+Copy-Item local.properties ../Kivo-verify/local.properties   # holds sdk.dir; gitignored
+Set-Location ../Kivo-verify
+.\gradlew.bat :app:assembleDebug :app:check --console=plain
+```
+
+Remove it afterwards. On Windows `git worktree remove` can fail with *Filename too long* inside `app/build`; mirror an empty directory over it first, then delete:
+
+```powershell
+git worktree remove ../Kivo-verify --force
+$empty = Join-Path $env:TEMP 'kivo-empty'
+New-Item -ItemType Directory $empty -Force | Out-Null
+robocopy $empty ../Kivo-verify /MIR /NFL /NDL /NJH /NJS /NP | Out-Null
+Remove-Item ../Kivo-verify -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item $empty -Recurse -Force -ErrorAction SilentlyContinue
+```
 
 ## Where each kind of test lives
 
@@ -40,11 +64,12 @@ Put a fake at the seam instead of a mock: `FakeAccountDao`/`FakeEntryDao` stand 
 
 ## Debugging a Compose test
 
-A Compose failure names a matcher, not a cause, and each run costs a Gradle invocation. Three things pay off first:
+A Compose failure names a matcher, not a cause, and each run costs a Gradle invocation. Four things pay off first:
 
 - **Dump the tree once.** Write it to a file from inside the test so it survives the Gradle output: `java.io.File("build/tree.txt").writeText(composeRule.onRoot(useUnmergedTree = true).printToString(maxDepth = 40))`. Collect every diagnostic you need in that one run.
 - **Read the unmerged tree.** A node can be present and still unfindable because an ancestor merges or clears its semantics: the material3 extended FAB hides its own label that way, so match the button through the content description on its icon. `onAllNodesWithText("...", useUnmergedTree = true)` finds it.
 - **Remember that a lazy list composes only what is visible.** A section below the fold does not exist until `performScrollToNode(...)` brings it in.
+- **Read a test's output from the report.** Its `println` lands in `app/build/test-results/testDebugUnitTest/<Class>.xml` under `<system-out>`, so search that file with `Select-String` instead of passing `-i`, which prints the entire Gradle log.
 
 ## Known follow-ups
 
