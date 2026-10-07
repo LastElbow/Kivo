@@ -9,6 +9,8 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemColors
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,15 +32,20 @@ internal const val ACCOUNT_ACTIONS_TEST_TAG = "account_actions"
  * One Account with its type shape, name, type and derived Balance, as listed on Home and Accounts.
  * The Balance renders emphasized in tabular figures. When [onArchive] is given the row also offers
  * Archiving; Accounts passes it, Home leaves it off.
+ *
+ * [colors] defaults to the list item's own opaque container. A caller that puts the row inside a
+ * segment container passes a transparent container colour so that container shows through.
  */
 @Composable
 fun AccountRow(
     accountBalance: AccountBalance,
     modifier: Modifier = Modifier,
     onArchive: (() -> Unit)? = null,
+    colors: ListItemColors = ListItemDefaults.colors(),
 ) {
     ListItem(
         modifier = modifier,
+        colors = colors,
         leadingContent = { LeadingTypeShape(iconRes = accountBalance.account.type.iconRes()) },
         headlineContent = { Text(text = accountBalance.account.name) },
         supportingContent = { Text(text = stringResource(accountBalance.account.type.labelRes())) },

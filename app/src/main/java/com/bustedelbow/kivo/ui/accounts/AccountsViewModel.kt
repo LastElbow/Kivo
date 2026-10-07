@@ -17,22 +17,22 @@ import kotlinx.coroutines.launch
 
 /**
  * Drives Accounts: the list with derived Balances (ADR-0002) and Account creation (name, type,
- * Opening balance).
+ * Opening balance) in a modal bottom sheet.
  */
 class AccountsViewModel(
     private val accountRepository: AccountRepository,
 ) : ViewModel() {
-    private val isCreateDialogVisible = MutableStateFlow(false)
+    private val isCreateSheetVisible = MutableStateFlow(false)
 
     val uiState: StateFlow<AccountsUiState> =
         combine(
             accountRepository.observeAccountBalances(),
-            isCreateDialogVisible,
-        ) { balances, dialogVisible ->
+            isCreateSheetVisible,
+        ) { balances, sheetVisible ->
             AccountsUiState(
                 accounts = balances,
                 isLoading = false,
-                isCreateDialogVisible = dialogVisible,
+                isCreateSheetVisible = sheetVisible,
             )
         }.stateIn(
             scope = viewModelScope,
@@ -40,18 +40,18 @@ class AccountsViewModel(
             initialValue = AccountsUiState(),
         )
 
-    fun showCreateDialog() {
-        isCreateDialogVisible.value = true
+    fun showCreateSheet() {
+        isCreateSheetVisible.value = true
     }
 
-    fun dismissCreateDialog() {
-        isCreateDialogVisible.value = false
+    fun dismissCreateSheet() {
+        isCreateSheetVisible.value = false
     }
 
     fun createAccount(account: NewAccount) {
         viewModelScope.launch {
             accountRepository.createAccount(account)
-            isCreateDialogVisible.value = false
+            isCreateSheetVisible.value = false
         }
     }
 
@@ -72,9 +72,9 @@ class AccountsViewModel(
     }
 }
 
-/** The state Accounts renders: its Account list and whether the creation dialog is open. */
+/** The state Accounts renders: its Account list and whether the creation sheet is open. */
 data class AccountsUiState(
     val accounts: List<AccountBalance> = emptyList(),
     val isLoading: Boolean = true,
-    val isCreateDialogVisible: Boolean = false,
+    val isCreateSheetVisible: Boolean = false,
 )

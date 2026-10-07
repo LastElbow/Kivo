@@ -28,7 +28,7 @@
     <string name="create_account_type_label">Type</string>
     <string name="create_account_opening_balance_label">Opening balance</string>
     <string name="create_account_confirm">Create</string>
-    <string name="create_account_cancel">Cancel</string>
+    <string name="create_account_close">Close</string>
 
     <string name="account_type_bank">Bank</string>
     <string name="account_type_e_wallet">E-Wallet</string>

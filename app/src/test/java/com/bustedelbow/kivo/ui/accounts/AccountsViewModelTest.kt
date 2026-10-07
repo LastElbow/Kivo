@@ -16,39 +16,39 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
-/** Accounts lists derived Balances and drives Account creation (issue #3). */
+/** Accounts lists derived Balances and drives Account creation (issue #3, sheet in #11). */
 @OptIn(ExperimentalCoroutinesApi::class)
 class AccountsViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
     @Test
-    fun `showing and dismissing the create dialog updates state`() =
+    fun `showing and dismissing the create sheet updates state`() =
         runTest {
             val viewModel = AccountsViewModel(AccountRepository(FakeAccountDao(), FakeEntryDao()))
 
-            assertFalse(viewModel.uiState.first { !it.isLoading }.isCreateDialogVisible)
+            assertFalse(viewModel.uiState.first { !it.isLoading }.isCreateSheetVisible)
 
-            viewModel.showCreateDialog()
-            assertTrue(viewModel.uiState.first { it.isCreateDialogVisible }.isCreateDialogVisible)
+            viewModel.showCreateSheet()
+            assertTrue(viewModel.uiState.first { it.isCreateSheetVisible }.isCreateSheetVisible)
 
-            viewModel.dismissCreateDialog()
-            assertFalse(viewModel.uiState.first { !it.isCreateDialogVisible }.isCreateDialogVisible)
+            viewModel.dismissCreateSheet()
+            assertFalse(viewModel.uiState.first { !it.isCreateSheetVisible }.isCreateSheetVisible)
         }
 
     @Test
-    fun `createAccount stores the account and closes the dialog`() =
+    fun `createAccount stores the account and closes the sheet`() =
         runTest {
             val accountDao = FakeAccountDao()
             val viewModel = AccountsViewModel(AccountRepository(accountDao, FakeEntryDao()))
-            viewModel.showCreateDialog()
+            viewModel.showCreateSheet()
 
             viewModel.createAccount(
                 NewAccount(name = "Cash", type = AccountType.CASH, openingBalanceMinorUnits = 5_000),
             )
 
             val state = viewModel.uiState.first { it.accounts.isNotEmpty() }
-            assertFalse(state.isCreateDialogVisible)
+            assertFalse(state.isCreateSheetVisible)
             assertEquals(
                 "Cash",
                 state.accounts
