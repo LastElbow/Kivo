@@ -1,7 +1,21 @@
 name: Check release signing secrets
-description: Verifies the four RELEASE_* repository secrets are set and non-empty. Fails or warns, per input.
+description: Reports which of the four RELEASE_* signing secrets are missing or empty. Fails or warns, per input.
+
+# A composite action cannot read the secrets context, so callers pass the four values as inputs.
 
 inputs:
+  keystore:
+    description: Value of the RELEASE_KEYSTORE_BASE64 repository secret.
+    required: true
+  store-password:
+    description: Value of the RELEASE_STORE_PASSWORD repository secret.
+    required: true
+  key-alias:
+    description: Value of the RELEASE_KEY_ALIAS repository secret.
+    required: true
+  key-password:
+    description: Value of the RELEASE_KEY_PASSWORD repository secret.
+    required: true
   fail-on-missing:
     description: Set to 'true' to exit non-zero when a secret is missing or empty; anything else only emits a workflow warning.
     required: false
@@ -14,10 +28,10 @@ runs:
       shell: bash
       env:
         FAIL_ON_MISSING: ${{ inputs.fail-on-missing }}
-        KEYSTORE: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
-        STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
-        KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
-        KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+        KEYSTORE: ${{ inputs.keystore }}
+        STORE_PASSWORD: ${{ inputs.store-password }}
+        KEY_ALIAS: ${{ inputs.key-alias }}
+        KEY_PASSWORD: ${{ inputs.key-password }}
       run: |
         missing=''
         [ -n "$KEYSTORE" ] || missing="$missing RELEASE_KEYSTORE_BASE64"

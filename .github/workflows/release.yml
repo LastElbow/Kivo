@@ -38,6 +38,10 @@ jobs:
       - name: Check that the signing secrets exist
         uses: ./.github/actions/check-signing-secrets
         with:
+          keystore: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+          store-password: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          key-alias: ${{ secrets.RELEASE_KEY_ALIAS }}
+          key-password: ${{ secrets.RELEASE_KEY_PASSWORD }}
           fail-on-missing: 'true'
 
       - name: Decode the keystore

@@ -26,8 +26,13 @@ Robolectric lays the window out at a default **320×470dp**; pin a realistic dev
 | Unit + Robolectric tests | `./gradlew :app:testDebugUnitTest` |
 | One test class | `./gradlew :app:testDebugUnitTest --tests "com.bustedelbow.kivo.domain.ledger.LedgerTest"` |
 | Lint and ktlint | `./gradlew :app:lintDebug :app:ktlintCheck` |
+| Workflows and local actions | `actionlint` (no arguments, from the repository root) |
 
 `:app:check` is the gate: lint, ktlint and every JVM test. CI (`.github/workflows/ci.yml`) runs it on every push and pull request. Instrumented tests in `app/src/androidTest/` need a device and are not part of CI.
+
+The `workflow-lint` job is the check of record for `.github/`: CI's `actionlint` validates the metadata of local actions as well as the workflows. For the same check locally — one download from the `rhysd/actionlint` releases page — run `actionlint` from the repository root with no arguments. Never name an `action.yml` directly; `actionlint` parses its arguments as workflows and reports nonsense about a missing `jobs` section.
+
+CI's binary can be newer than a local one and catch rules it does not. One such rule caught a composite action reading the `secrets` context, which no composite action can do — the local run passed and the job failed on the runner, so treat a green local run as a pre-flight, not the verdict.
 
 ## Verifying in isolation
 
