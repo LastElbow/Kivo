@@ -16,6 +16,10 @@ Single-context: root `GLOSSARY.md` + `docs/adr/`. See `docs/agents/domain.md`.
 
 The reviewer's judgement calls live in `CODING_STANDARDS.md`; ktlint and lint own the mechanical style.
 
+### Android skills
+
+Android and Compose guidance lives in `.agents/skills/`; consult the matching skill before Android-specific work (e.g. `testing-setup` when adding tests, `edge-to-edge` for UI).
+
 ## Verifying changes
 
-Run `./gradlew :app:check` before calling work done: it runs lint, ktlint and the tests, matching CI (`.github/workflows/ci.yml` runs `:app:assembleDebug :app:check`). Compose UI tests run on the JVM under Robolectric in `:app:testDebugUnitTest`; `app/src/test/java/com/bustedelbow/kivo/ui/KivoAppNavigationTest.kt` is the pattern.
+Run `./gradlew :app:check` before calling work done: it runs lint, ktlint and the tests, matching CI (`.github/workflows/ci.yml` runs `:app:assembleDebug :app:check`). Compose UI tests run on the JVM under Robolectric in `:app:testDebugUnitTest`; `app/src/test/java/com/bustedelbow/kivo/ui/KivoAppNavigationTest.kt` is the pattern. The full strategy is in `docs/testing.md`.
