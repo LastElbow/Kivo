@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,10 +16,8 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -96,11 +93,14 @@ fun HomeScreen(
 }
 
 /**
- * The redesigned Home (issue #9): a large app bar over a hero `primaryContainer` Balance card that
- * counts up, a tonal week summary nested inside it, and the Accounts and Recent sections as
- * segmented contained rows separated by gaps. The extended FAB sits above the navigation bar.
+ * The redesigned Home (issue #9): a hero `primaryContainer` Balance card that counts up, a tonal
+ * week summary nested inside it, and the Accounts and Recent sections as segmented contained rows
+ * separated by gaps. The extended FAB sits above the navigation bar.
+ *
+ * Home carries no app bar. Its own name would only restate the Home tab the navigation bar already
+ * marks as selected, and the large app bar's reserved height left that stretch of screen empty; the
+ * hero card is the heading instead.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun HomeContent(
     uiState: HomeUiState,
@@ -110,93 +110,80 @@ internal fun HomeContent(
     modifier: Modifier = Modifier,
     reducedMotion: Boolean = rememberReducedMotion(),
 ) {
-    Column(
+    Box(
         modifier =
             modifier
                 .fillMaxSize()
                 .consumeWindowInsets(contentPadding)
                 .padding(contentPadding),
     ) {
-        LargeTopAppBar(
-            title = {
-                Text(
-                    text = stringResource(R.string.app_name),
-                    style = KivoType.emphasized.headlineMedium,
+        when {
+            uiState.isLoading -> LoadingState()
+
+            uiState.accounts.isEmpty() ->
+                EmptyAccountsState(
+                    title = stringResource(R.string.home_empty_title),
+                    body = stringResource(R.string.home_empty_body),
+                    action = stringResource(R.string.home_empty_action),
+                    onAction = onCreateAccount,
                 )
-            },
-            // The Scaffold already applied the system-bar insets, so the bar itself adds none.
-            windowInsets = WindowInsets(0, 0, 0, 0),
-        )
 
-        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-            when {
-                uiState.isLoading -> LoadingState()
-
-                uiState.accounts.isEmpty() ->
-                    EmptyAccountsState(
-                        title = stringResource(R.string.home_empty_title),
-                        body = stringResource(R.string.home_empty_body),
-                        action = stringResource(R.string.home_empty_action),
-                        onAction = onCreateAccount,
-                    )
-
-                else -> {
-                    LazyColumn(
-                        modifier =
-                            Modifier
-                                .fillMaxSize()
-                                .testTag(HOME_LIST_TEST_TAG),
-                        contentPadding =
-                            PaddingValues(
-                                start = ListGutters,
-                                top = ListGutters,
-                                end = ListGutters,
-                                bottom = ListBottomPadding,
-                            ),
-                        verticalArrangement = Arrangement.spacedBy(SegmentGap),
-                    ) {
-                        item(key = "hero") {
-                            BalanceHero(uiState = uiState, reducedMotion = reducedMotion)
-                        }
-                        item(key = "accounts-title") { SectionTitle(stringResource(R.string.home_accounts_title)) }
-                        items(uiState.accounts, key = { "account-${it.account.id}" }) { accountBalance ->
-                            TonalContainer {
-                                AccountRow(
-                                    accountBalance = accountBalance,
-                                    // The segment is the container; the row paints none of its own.
-                                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                                )
-                            }
-                        }
-                        item(key = "recent-title") { SectionTitle(stringResource(R.string.home_recent_title)) }
-                        recentHistory(uiState.recentEntries)
+            else -> {
+                LazyColumn(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(HOME_LIST_TEST_TAG),
+                    contentPadding =
+                        PaddingValues(
+                            start = ListGutters,
+                            top = ListGutters,
+                            end = ListGutters,
+                            bottom = ListBottomPadding,
+                        ),
+                    verticalArrangement = Arrangement.spacedBy(SegmentGap),
+                ) {
+                    item(key = "hero") {
+                        BalanceHero(uiState = uiState, reducedMotion = reducedMotion)
                     }
-
-                    ExtendedFloatingActionButton(
-                        onClick = onAddEntry,
-                        // The extended FAB draws its label, but material3 hides that label from
-                        // the merged semantics, so the icon carries the accessible name.
-                        icon = {
-                            Icon(
-                                imageVector = Icons.Filled.Add,
-                                contentDescription = stringResource(R.string.home_add_entry_fab),
+                    item(key = "accounts-title") { SectionTitle(stringResource(R.string.home_accounts_title)) }
+                    items(uiState.accounts, key = { "account-${it.account.id}" }) { accountBalance ->
+                        TonalContainer {
+                            AccountRow(
+                                accountBalance = accountBalance,
+                                // The segment is the container; the row paints none of its own.
+                                colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                             )
-                        },
-                        text = {
-                            Text(
-                                text = stringResource(R.string.home_add_entry_fab),
-                                style = KivoType.emphasized.labelLarge,
-                            )
-                        },
-                        // The FAB is the app's most important action, so it takes the primary role.
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                        modifier =
-                            Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(16.dp),
-                    )
+                        }
+                    }
+                    item(key = "recent-title") { SectionTitle(stringResource(R.string.home_recent_title)) }
+                    recentHistory(uiState.recentEntries)
                 }
+
+                ExtendedFloatingActionButton(
+                    onClick = onAddEntry,
+                    // The extended FAB draws its label, but material3 hides that label from
+                    // the merged semantics, so the icon carries the accessible name.
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Filled.Add,
+                            contentDescription = stringResource(R.string.home_add_entry_fab),
+                        )
+                    },
+                    text = {
+                        Text(
+                            text = stringResource(R.string.home_add_entry_fab),
+                            style = KivoType.emphasized.labelLarge,
+                        )
+                    },
+                    // The FAB is the app's most important action, so it takes the primary role.
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    modifier =
+                        Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(16.dp),
+                )
             }
         }
     }

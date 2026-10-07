@@ -31,8 +31,8 @@ import org.robolectric.annotation.GraphicsMode
  * their ids overlap (both start at 1) and must not collide as lazy-list keys (issue #4 regression:
  * the app crashed on scroll once a first Entry shared the first Account's id).
  *
- * The redesign (issue #9) puts a large app bar over a Balance hero that counts up, a tonal week
- * summary and two segmented sections; these tests cover each of those.
+ * The redesign (issue #9) leads with a Balance hero that counts up, over a tonal week summary and
+ * two segmented sections; these tests cover each of those.
  */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -87,11 +87,10 @@ class HomeScreenTest {
     }
 
     @Test
-    fun `shows the large app bar over the hero balance and the week summary`() {
+    fun `shows the hero balance and the week summary`() {
         render(homeState())
         composeRule.waitForIdle()
 
-        composeRule.onNodeWithText("Kivo").assertExists()
         composeRule.onNodeWithText("Total balance").assertExists()
         composeRule.onNodeWithText("₱2,500.00").assertExists()
         composeRule.onNodeWithText("Spent this week").assertExists()
