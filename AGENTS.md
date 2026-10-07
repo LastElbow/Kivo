@@ -11,3 +11,11 @@ Five canonical roles with label strings equal to their names (`needs-triage`, `n
 ### Domain docs
 
 Single-context: root `GLOSSARY.md` + `docs/adr/`. See `docs/agents/domain.md`.
+
+### Coding standards
+
+The reviewer's judgement calls live in `CODING_STANDARDS.md`; ktlint and lint own the mechanical style.
+
+## Verifying changes
+
+Run `./gradlew :app:check` before calling work done: it runs lint, ktlint and the tests, matching CI (`.github/workflows/ci.yml` runs `:app:assembleDebug :app:check`). Compose UI tests run on the JVM under Robolectric in `:app:testDebugUnitTest`; `app/src/test/java/com/bustedelbow/kivo/ui/KivoAppNavigationTest.kt` is the pattern.
