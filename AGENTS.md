@@ -18,8 +18,10 @@ The reviewer's judgement calls live in `CODING_STANDARDS.md`; ktlint and lint ow
 
 ### Android skills
 
-Android and Compose guidance lives in `.agents/skills/`; consult the matching skill before Android-specific work (e.g. `testing-setup` when adding tests, `edge-to-edge` for UI).
+Android and Compose guidance lives in `.agents/skills/`; consult the matching skill before Android-specific work (e.g. `testing-setup` when adding tests, `edge-to-edge` for UI). What is callable in the pinned Material3 versions, and how to check it offline, is in `docs/compose.md`.
 
 ## Verifying changes
 
 Run `./gradlew :app:check` before calling work done: it runs lint, ktlint and the tests, matching CI (`.github/workflows/ci.yml` runs `:app:assembleDebug :app:check`). Compose UI tests run on the JVM under Robolectric in `:app:testDebugUnitTest`; `app/src/test/java/com/bustedelbow/kivo/ui/KivoAppNavigationTest.kt` is the pattern. The full strategy is in `docs/testing.md`.
+
+A `NoSuchFileException` naming `.../testDebugUnitTest/binary/in-progress-results-generic.bin` is a build-directory race between two Gradle builds sharing `app/build`; delete `app/build/test-results/testDebugUnitTest` and re-run, because the tests themselves have not failed.

@@ -38,6 +38,14 @@ Money and balance maths is pure Kotlin and tested directly. ViewModels and repos
 
 Put a fake at the seam instead of a mock: `FakeAccountDao`/`FakeEntryDao` stand in for Room at the DAO boundary, and in-memory Room stands in for the device. No mocking framework is installed, and none is needed yet.
 
+## Debugging a Compose test
+
+A Compose failure names a matcher, not a cause, and each run costs a Gradle invocation. Three things pay off first:
+
+- **Dump the tree once.** Write it to a file from inside the test so it survives the Gradle output: `java.io.File("build/tree.txt").writeText(composeRule.onRoot(useUnmergedTree = true).printToString(maxDepth = 40))`. Collect every diagnostic you need in that one run.
+- **Read the unmerged tree.** A node can be present and still unfindable because an ancestor merges or clears its semantics: the material3 extended FAB hides its own label that way, so match the button through the content description on its icon. `onAllNodesWithText("...", useUnmergedTree = true)` finds it.
+- **Remember that a lazy list composes only what is visible.** A section below the fold does not exist until `performScrollToNode(...)` brings it in.
+
 ## Known follow-ups
 
 - **Screenshot tests** are not set up. The Compose Preview Screenshot Testing tool needs AGP 9.5.0-alpha03 or higher for the test-suite setup; this project is on AGP 9.4.1, so that is a separate upgrade decision.
