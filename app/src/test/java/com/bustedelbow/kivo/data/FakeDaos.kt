@@ -17,6 +17,8 @@ import kotlinx.coroutines.flow.map
  */
 class FakeAccountDao(
     initial: List<AccountEntity> = emptyList(),
+    /** Account ids the real cross-table guard would treat as referenced by an Entry. */
+    private val referencedAccountIds: Set<Long> = emptySet(),
 ) : AccountDao {
     private val rows = MutableStateFlow(initial)
 
@@ -33,6 +35,17 @@ class FakeAccountDao(
         inserted += stored
         rows.value = rows.value + stored
         return id
+    }
+
+    override suspend fun archiveById(id: Long) {
+        rows.value = rows.value.map { if (it.id == id) it.copy(archived = true) else it }
+    }
+
+    override suspend fun hardDeleteIfUnreferenced(id: Long): Int {
+        if (id in referencedAccountIds) return 0
+        val before = rows.value
+        rows.value = before.filterNot { it.id == id }
+        return before.size - rows.value.size
     }
 }
 

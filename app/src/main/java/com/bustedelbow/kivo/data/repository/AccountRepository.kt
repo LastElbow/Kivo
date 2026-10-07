@@ -39,4 +39,19 @@ class AccountRepository(
                 openingBalanceMinorUnits = account.openingBalanceMinorUnits,
             ),
         )
+
+    /**
+     * Archives the Account with [id]: it leaves active Balances and pickers while its Entries stay
+     * readable (ADR-0004, GLOSSARY: Archived).
+     */
+    suspend fun archiveAccount(id: Long) {
+        accountDao.archiveById(id)
+    }
+
+    /**
+     * Hard-deletes the Account with [id] and returns whether it was removed. An Account any Entry
+     * references — as the Account it touches or as a Transfer's destination — is refused, because
+     * deleting it would rewrite history and corrupt the counterpart Balance (ADR-0004).
+     */
+    suspend fun hardDeleteAccount(id: Long): Boolean = accountDao.hardDeleteIfUnreferenced(id) > 0
 }

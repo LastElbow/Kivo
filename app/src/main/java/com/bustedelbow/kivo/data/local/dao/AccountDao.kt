@@ -23,4 +23,23 @@ interface AccountDao {
     /** Inserts an Account and returns its generated id. */
     @Insert
     suspend fun insert(account: AccountEntity): Long
+
+    /**
+     * Archives the Account with [id], hiding it from active reads while keeping its Entries readable
+     * (ADR-0004).
+     */
+    @Query("UPDATE accounts SET archived = 1 WHERE id = :id")
+    suspend fun archiveById(id: Long)
+
+    /**
+     * Hard-deletes the Account with [id] only when no Entry references it — as the Account it
+     * touches or as a Transfer's destination — in one statement, so the guard cannot race an
+     * insert. Returns the rows removed: 1, or 0 when the Account is referenced or absent
+     * (ADR-0004).
+     */
+    @Query(
+        "DELETE FROM accounts WHERE id = :id " +
+            "AND NOT EXISTS (SELECT 1 FROM entries WHERE accountId = :id OR counterAccountId = :id)",
+    )
+    suspend fun hardDeleteIfUnreferenced(id: Long): Int
 }

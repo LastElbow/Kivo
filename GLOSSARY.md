@@ -54,6 +54,11 @@ Describes an Account or Category that is hidden from new use but retained so tha
 Entries stay intact. Archiving is the ordinary end of an Account or Category's life.
 _Avoid_: Deleted, inactive, disabled
 
+**Hard delete**:
+The permanent removal of an Account or Category. Offered only for one that no Entry
+references, because deleting a referenced one would rewrite history (ADR-0004).
+_Avoid_: Delete, remove
+
 ## Reading the money
 
 **Period**:

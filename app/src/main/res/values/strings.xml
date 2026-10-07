@@ -20,6 +20,8 @@
     <string name="accounts_empty_body">Add an account to record where your money lives.</string>
     <string name="accounts_empty_action">Create an account</string>
     <string name="accounts_add_fab">Add account</string>
+    <string name="accounts_actions">Account actions</string>
+    <string name="accounts_archive_action">Archive</string>
 
     <string name="create_account_title">New account</string>
     <string name="create_account_name_label">Name</string>

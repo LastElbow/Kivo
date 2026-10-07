@@ -45,17 +45,19 @@ fun AccountsScreen(
         onAddAccount = viewModel::showCreateDialog,
         onDismissCreateAccount = viewModel::dismissCreateDialog,
         onCreateAccount = viewModel::createAccount,
+        onArchive = viewModel::archiveAccount,
         modifier = modifier,
     )
 }
 
 @Composable
-private fun AccountsContent(
+internal fun AccountsContent(
     uiState: AccountsUiState,
     contentPadding: PaddingValues,
     onAddAccount: () -> Unit,
     onDismissCreateAccount: () -> Unit,
     onCreateAccount: (NewAccount) -> Unit,
+    onArchive: (Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -79,7 +81,12 @@ private fun AccountsContent(
                             .consumeWindowInsets(contentPadding),
                     contentPadding = contentPadding.withGutters(horizontal = 16.dp, vertical = 8.dp),
                 ) {
-                    items(uiState.accounts, key = { it.account.id }) { AccountRow(it) }
+                    items(uiState.accounts, key = { it.account.id }) { accountBalance ->
+                        AccountRow(
+                            accountBalance = accountBalance,
+                            onArchive = { onArchive(accountBalance.account.id) },
+                        )
+                    }
                 }
         }
 

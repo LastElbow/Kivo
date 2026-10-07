@@ -124,4 +124,82 @@ class KivoDatabaseTest {
             assertEquals(2, all.size)
             assertEquals(20_001L, recent.single().occurredOnEpochDay)
         }
+
+    @Test
+    fun `archiveById hides an account from active reads but keeps it in observeAll`() =
+        runBlocking {
+            val accountId =
+                database.accountDao().insert(
+                    AccountEntity(name = "Bank", type = AccountType.BANK.name, openingBalanceMinorUnits = 0),
+                )
+
+            database.accountDao().archiveById(accountId)
+
+            val active = database.accountDao().observeActive().first()
+            val stored = database.accountDao().observeAll().first()
+            assertTrue(active.isEmpty())
+            assertTrue(stored.single().archived)
+        }
+
+    @Test
+    fun `hardDeleteIfUnreferenced removes an account no entry references`() =
+        runBlocking {
+            val bankId =
+                database.accountDao().insert(
+                    AccountEntity(name = "Bank", type = AccountType.BANK.name, openingBalanceMinorUnits = 0),
+                )
+            database.accountDao().insert(
+                AccountEntity(name = "Cash", type = AccountType.CASH.name, openingBalanceMinorUnits = 0),
+            )
+
+            assertEquals(1, database.accountDao().hardDeleteIfUnreferenced(bankId))
+
+            val accounts = database.accountDao().observeAll().first()
+            assertEquals(listOf("Cash"), accounts.map { it.name })
+        }
+
+    @Test
+    fun `hardDeleteIfUnreferenced refuses an account an entry touches or transfers to`() =
+        runBlocking {
+            val bankId =
+                database.accountDao().insert(
+                    AccountEntity(name = "Bank", type = AccountType.BANK.name, openingBalanceMinorUnits = 0),
+                )
+            val cashId =
+                database.accountDao().insert(
+                    AccountEntity(name = "Cash", type = AccountType.CASH.name, openingBalanceMinorUnits = 0),
+                )
+            val categoryId =
+                database
+                    .categoryDao()
+                    .observeActive()
+                    .first()
+                    .first { it.type == CategoryType.EXPENSE.name }
+                    .id
+
+            database.entryDao().insert(
+                EntryEntity(
+                    type = "EXPENSE",
+                    accountId = bankId,
+                    categoryId = categoryId,
+                    amountMinorUnits = 1_000,
+                    occurredOnEpochDay = 20_000,
+                ),
+            )
+            database.entryDao().insert(
+                EntryEntity(
+                    type = "TRANSFER",
+                    accountId = bankId,
+                    counterAccountId = cashId,
+                    amountMinorUnits = 2_000,
+                    occurredOnEpochDay = 20_001,
+                ),
+            )
+
+            assertEquals(0, database.accountDao().hardDeleteIfUnreferenced(bankId))
+            assertEquals(0, database.accountDao().hardDeleteIfUnreferenced(cashId))
+
+            val accounts = database.accountDao().observeAll().first()
+            assertEquals(listOf("Bank", "Cash"), accounts.map { it.name })
+        }
 }

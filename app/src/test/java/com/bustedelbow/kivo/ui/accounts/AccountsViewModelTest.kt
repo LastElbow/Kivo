@@ -2,6 +2,7 @@ package com.bustedelbow.kivo.ui.accounts
 
 import com.bustedelbow.kivo.data.FakeAccountDao
 import com.bustedelbow.kivo.data.FakeEntryDao
+import com.bustedelbow.kivo.data.local.entity.AccountEntity
 import com.bustedelbow.kivo.data.repository.AccountRepository
 import com.bustedelbow.kivo.domain.model.AccountType
 import com.bustedelbow.kivo.domain.model.NewAccount
@@ -54,5 +55,24 @@ class AccountsViewModelTest {
                     .single()
                     .account.name,
             )
+        }
+
+    @Test
+    fun `archiveAccount removes the account from the list`() =
+        runTest {
+            val accountDao =
+                FakeAccountDao(
+                    listOf(
+                        AccountEntity(id = 1, name = "Bank", type = "BANK", openingBalanceMinorUnits = 0),
+                        AccountEntity(id = 2, name = "Cash", type = "CASH", openingBalanceMinorUnits = 0),
+                    ),
+                )
+            val viewModel = AccountsViewModel(AccountRepository(accountDao, FakeEntryDao()))
+            viewModel.uiState.first { it.accounts.size == 2 }
+
+            viewModel.archiveAccount(2)
+
+            val state = viewModel.uiState.first { it.accounts.size == 1 }
+            assertEquals(listOf(1L), state.accounts.map { it.account.id })
         }
 }

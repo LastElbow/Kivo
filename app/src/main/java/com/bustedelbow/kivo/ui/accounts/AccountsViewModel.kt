@@ -55,6 +55,13 @@ class AccountsViewModel(
         }
     }
 
+    /** Archives the Account with [id], retiring it from the list while its Entries stay readable (ADR-0004). */
+    fun archiveAccount(id: Long) {
+        viewModelScope.launch {
+            accountRepository.archiveAccount(id)
+        }
+    }
+
     companion object {
         private const val STOP_TIMEOUT_MILLIS = 5_000L
 
