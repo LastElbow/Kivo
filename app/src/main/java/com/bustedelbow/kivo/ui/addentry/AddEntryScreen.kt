@@ -51,6 +51,7 @@ import com.bustedelbow.kivo.ui.components.labelRes
 import com.bustedelbow.kivo.ui.format.PESO_SIGN
 import com.bustedelbow.kivo.ui.format.formatEpochDay
 import com.bustedelbow.kivo.ui.navigation.KivoRoute
+import com.bustedelbow.kivo.ui.theme.KivoType
 
 /**
  * The full-screen Add Entry flow: amount, Account, Category, date and note, recording an Expense or
@@ -129,7 +130,7 @@ private fun AddEntryContent(
             }
             Text(
                 text = stringResource(R.string.add_entry_title),
-                style = MaterialTheme.typography.titleLarge,
+                style = KivoType.emphasized.titleLarge,
             )
         }
 
@@ -221,7 +222,10 @@ private fun AddEntryContent(
                 enabled = uiState.canSave,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text(text = stringResource(R.string.add_entry_save))
+                Text(
+                    text = stringResource(R.string.add_entry_save),
+                    style = KivoType.emphasized.labelLarge,
+                )
             }
         }
     }

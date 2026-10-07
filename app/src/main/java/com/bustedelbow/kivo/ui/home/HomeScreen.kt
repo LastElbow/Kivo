@@ -39,6 +39,7 @@ import com.bustedelbow.kivo.ui.components.EntryRow
 import com.bustedelbow.kivo.ui.components.LoadingState
 import com.bustedelbow.kivo.ui.components.withGutters
 import com.bustedelbow.kivo.ui.format.formatPhp
+import com.bustedelbow.kivo.ui.theme.KivoType
 
 /** Stable tag for Home's scrolling list, shared with UI tests. */
 internal const val HOME_LIST_TEST_TAG = "home_list"
@@ -153,7 +154,7 @@ private fun SectionTitle(
 ) {
     Text(
         text = text,
-        style = MaterialTheme.typography.titleMedium,
+        style = KivoType.emphasized.titleMedium,
         modifier = modifier.padding(top = 16.dp, bottom = 4.dp),
     )
 }
@@ -173,7 +174,7 @@ private fun TotalBalanceCard(
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = formatPhp(totalMinorUnits),
-                style = MaterialTheme.typography.headlineMedium,
+                style = KivoType.emphasized.headlineMedium,
             )
         }
     }

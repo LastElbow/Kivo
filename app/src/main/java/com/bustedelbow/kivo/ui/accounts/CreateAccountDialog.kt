@@ -26,6 +26,7 @@ import com.bustedelbow.kivo.domain.model.NewAccount
 import com.bustedelbow.kivo.ui.components.labelRes
 import com.bustedelbow.kivo.ui.format.PESO_SIGN
 import com.bustedelbow.kivo.ui.format.parsePhpToMinorUnits
+import com.bustedelbow.kivo.ui.theme.KivoType
 
 /**
  * Collects the name, type and Opening balance for a new Account. Amount parsing happens here, at
@@ -100,7 +101,10 @@ fun CreateAccountDialog(
                 },
                 enabled = canConfirm,
             ) {
-                Text(text = stringResource(R.string.create_account_confirm))
+                Text(
+                    text = stringResource(R.string.create_account_confirm),
+                    style = KivoType.emphasized.labelLarge,
+                )
             }
         },
         dismissButton = {

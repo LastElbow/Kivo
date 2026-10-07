@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.bustedelbow.kivo.ui.theme.KivoType
 
 /**
  * The prompt shown when the user has no Accounts yet, guiding a fresh install to create its first
@@ -41,7 +42,7 @@ fun EmptyAccountsState(
     ) {
         Text(
             text = title,
-            style = MaterialTheme.typography.headlineSmall,
+            style = KivoType.emphasized.headlineSmall,
             textAlign = TextAlign.Center,
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -55,7 +56,10 @@ fun EmptyAccountsState(
         Button(onClick = onAction) {
             Icon(imageVector = Icons.Filled.Add, contentDescription = null)
             Spacer(modifier = Modifier.width(8.dp))
-            Text(text = action)
+            Text(
+                text = action,
+                style = KivoType.emphasized.labelLarge,
+            )
         }
     }
 }
