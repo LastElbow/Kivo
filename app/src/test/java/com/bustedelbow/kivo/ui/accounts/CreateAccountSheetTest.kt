@@ -1,7 +1,9 @@
 package com.bustedelbow.kivo.ui.accounts
 
+import android.content.Context
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -9,6 +11,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.bustedelbow.kivo.domain.model.AccountType
 import com.bustedelbow.kivo.domain.model.NewAccount
@@ -18,6 +21,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 /**
@@ -98,6 +102,26 @@ class CreateAccountSheetTest {
         composeRule.onNodeWithContentDescription("Close").performClick()
 
         assertTrue(dismissed)
+    }
+
+    @Test
+    @Config(qualifiers = "w360dp-h800dp")
+    fun `the create action is on screen when the sheet opens at half height`() {
+        composeRule.setContent {
+            KivoTheme {
+                CreateAccountSheet(onDismiss = {}, onConfirm = {})
+            }
+        }
+        composeRule.waitForIdle()
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val screenHeight = context.resources.configuration.screenHeightDp
+        val form = composeRule.onNodeWithTag(CREATE_ACCOUNT_FORM_TEST_TAG).getUnclippedBoundsInRoot()
+        val button = composeRule.onNodeWithText("Create").getUnclippedBoundsInRoot()
+
+        // The sheet opens at half the window, and the Create action is fully on screen without a drag.
+        assertEquals(screenHeight / 2f, form.top.value, 1f)
+        assertTrue(button.bottom.value <= screenHeight)
     }
 
     private fun renderForm(
