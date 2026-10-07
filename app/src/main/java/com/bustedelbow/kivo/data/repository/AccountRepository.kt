@@ -18,7 +18,6 @@ class AccountRepository(
     private val accountDao: AccountDao,
     private val entryDao: EntryDao,
 ) {
-
     /** The active Accounts, each paired with its derived Balance, ordered by name. */
     fun observeAccountBalances(): Flow<List<AccountBalance>> =
         combine(accountDao.observeActive(), entryDao.observeAll()) { accounts, entries ->
@@ -27,11 +26,12 @@ class AccountRepository(
         }
 
     /** Creates an Account and returns its generated id. */
-    suspend fun createAccount(account: NewAccount): Long = accountDao.insert(
-        AccountEntity(
-            name = account.name,
-            type = account.type.name,
-            openingBalanceMinorUnits = account.openingBalanceMinorUnits,
-        ),
-    )
+    suspend fun createAccount(account: NewAccount): Long =
+        accountDao.insert(
+            AccountEntity(
+                name = account.name,
+                type = account.type.name,
+                openingBalanceMinorUnits = account.openingBalanceMinorUnits,
+            ),
+        )
 }

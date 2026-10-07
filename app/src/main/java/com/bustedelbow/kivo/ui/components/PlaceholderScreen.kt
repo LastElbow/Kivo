@@ -10,7 +10,10 @@ import androidx.compose.ui.Modifier
 
 /** Temporary content for a destination whose real UI lands in a later slice. */
 @Composable
-fun PlaceholderScreen(title: String, modifier: Modifier = Modifier) {
+fun PlaceholderScreen(
+    title: String,
+    modifier: Modifier = Modifier,
+) {
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,

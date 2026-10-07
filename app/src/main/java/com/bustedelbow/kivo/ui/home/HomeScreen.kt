@@ -32,7 +32,10 @@ import com.bustedelbow.kivo.ui.format.formatPhp
  * fresh install to create its first Account (issue #3).
  */
 @Composable
-fun HomeScreen(onCreateAccount: () -> Unit, modifier: Modifier = Modifier) {
+fun HomeScreen(
+    onCreateAccount: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val viewModel: HomeViewModel =
         viewModel(factory = HomeViewModel.factory(LocalAppContainer.current.accountRepository))
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -49,34 +52,39 @@ private fun HomeContent(
     when {
         uiState.isLoading -> LoadingState(modifier)
 
-        uiState.accounts.isEmpty() -> EmptyAccountsState(
-            title = stringResource(R.string.home_empty_title),
-            body = stringResource(R.string.home_empty_body),
-            action = stringResource(R.string.home_empty_action),
-            onAction = onCreateAccount,
-            modifier = modifier,
-        )
+        uiState.accounts.isEmpty() ->
+            EmptyAccountsState(
+                title = stringResource(R.string.home_empty_title),
+                body = stringResource(R.string.home_empty_body),
+                action = stringResource(R.string.home_empty_action),
+                onAction = onCreateAccount,
+                modifier = modifier,
+            )
 
-        else -> LazyColumn(
-            modifier = modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            item(key = "total") { TotalBalanceCard(uiState.totalBalanceMinorUnits) }
-            item(key = "accounts-title") {
-                Text(
-                    text = stringResource(R.string.home_accounts_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(top = 16.dp, bottom = 4.dp),
-                )
+        else ->
+            LazyColumn(
+                modifier = modifier.fillMaxSize(),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                item(key = "total") { TotalBalanceCard(uiState.totalBalanceMinorUnits) }
+                item(key = "accounts-title") {
+                    Text(
+                        text = stringResource(R.string.home_accounts_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(top = 16.dp, bottom = 4.dp),
+                    )
+                }
+                items(uiState.accounts, key = { it.account.id }) { AccountRow(it) }
             }
-            items(uiState.accounts, key = { it.account.id }) { AccountRow(it) }
-        }
     }
 }
 
 @Composable
-private fun TotalBalanceCard(totalMinorUnits: Long, modifier: Modifier = Modifier) {
+private fun TotalBalanceCard(
+    totalMinorUnits: Long,
+    modifier: Modifier = Modifier,
+) {
     Card(modifier = modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(20.dp)) {
             Text(

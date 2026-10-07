@@ -6,7 +6,6 @@ import org.junit.Test
 
 /** Formatting and parsing happen only at the UI edge (ADR-0003); these pin the PHP presentation. */
 class MoneyTest {
-
     @Test
     fun `formats pesos with thousands separators and two decimals`() {
         assertEquals("₱1,000.00", formatPhp(100_000))

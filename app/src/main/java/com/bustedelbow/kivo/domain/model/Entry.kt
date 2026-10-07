@@ -9,6 +9,7 @@ package com.bustedelbow.kivo.domain.model
  */
 sealed interface Entry {
     val id: Long
+
     /** The calendar day the movement happened, as an ISO epoch day. */
     val occurredOnEpochDay: Long
     val note: String?

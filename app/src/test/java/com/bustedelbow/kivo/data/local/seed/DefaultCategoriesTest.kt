@@ -6,7 +6,6 @@ import org.junit.Test
 
 /** Guards the categories a fresh install must have (issue #3). */
 class DefaultCategoriesTest {
-
     @Test
     fun `seeds both expense and income categories`() {
         val types = DefaultCategories.all.map { it.type }.toSet()

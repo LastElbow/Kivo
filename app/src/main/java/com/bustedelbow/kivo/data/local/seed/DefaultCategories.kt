@@ -13,14 +13,15 @@ internal data class SeedCategory(
  * a first-run user can record an Entry without managing Categories first.
  */
 internal object DefaultCategories {
-    val all: List<SeedCategory> = listOf(
-        SeedCategory(name = "Food", type = CategoryType.EXPENSE),
-        SeedCategory(name = "Transport", type = CategoryType.EXPENSE),
-        SeedCategory(name = "Bills", type = CategoryType.EXPENSE),
-        SeedCategory(name = "Shopping", type = CategoryType.EXPENSE),
-        SeedCategory(name = "Other", type = CategoryType.EXPENSE),
-        SeedCategory(name = "Salary", type = CategoryType.INCOME),
-        SeedCategory(name = "Allowance", type = CategoryType.INCOME),
-        SeedCategory(name = "Other", type = CategoryType.INCOME),
-    )
+    val all: List<SeedCategory> =
+        listOf(
+            SeedCategory(name = "Food", type = CategoryType.EXPENSE),
+            SeedCategory(name = "Transport", type = CategoryType.EXPENSE),
+            SeedCategory(name = "Bills", type = CategoryType.EXPENSE),
+            SeedCategory(name = "Shopping", type = CategoryType.EXPENSE),
+            SeedCategory(name = "Other", type = CategoryType.EXPENSE),
+            SeedCategory(name = "Salary", type = CategoryType.INCOME),
+            SeedCategory(name = "Allowance", type = CategoryType.INCOME),
+            SeedCategory(name = "Other", type = CategoryType.INCOME),
+        )
 }

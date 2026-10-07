@@ -8,7 +8,6 @@ import com.bustedelbow.kivo.di.AppContainer
  * are built once at startup rather than per screen.
  */
 class KivoApplication : Application() {
-
     lateinit var container: AppContainer
         private set
 

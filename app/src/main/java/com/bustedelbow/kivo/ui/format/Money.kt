@@ -12,11 +12,13 @@ fun formatPhp(minorUnits: Long): String {
     val magnitude = if (isNegative) -minorUnits else minorUnits
     val major = magnitude / 100
     val cents = magnitude % 100
-    val grouped = major.toString()
-        .reversed()
-        .chunked(3)
-        .joinToString(",")
-        .reversed()
+    val grouped =
+        major
+            .toString()
+            .reversed()
+            .chunked(3)
+            .joinToString(",")
+            .reversed()
     val sign = if (isNegative) "-" else ""
     return "$sign$PESO_SIGN$grouped.${cents.toString().padStart(2, '0')}"
 }
@@ -27,10 +29,12 @@ fun formatPhp(minorUnits: Long): String {
  * sub-centavo precision.
  */
 fun parsePhpToMinorUnits(raw: String): Long? {
-    val cleaned = raw.trim()
-        .replace(PESO_SIGN, "")
-        .replace(",", "")
-        .replace(" ", "")
+    val cleaned =
+        raw
+            .trim()
+            .replace(PESO_SIGN, "")
+            .replace(",", "")
+            .replace(" ", "")
     if (cleaned.isEmpty()) return null
 
     val isNegative = cleaned.startsWith("-")

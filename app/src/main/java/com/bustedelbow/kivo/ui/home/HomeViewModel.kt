@@ -17,28 +17,31 @@ import kotlinx.coroutines.flow.stateIn
  * Drives Home: the total across active Accounts and the Account list, both read from derived
  * Balances (ADR-0002).
  */
-class HomeViewModel(accountRepository: AccountRepository) : ViewModel() {
-
-    val uiState: StateFlow<HomeUiState> = accountRepository.observeAccountBalances()
-        .map { balances ->
-            HomeUiState(
-                accounts = balances,
-                totalBalanceMinorUnits = Ledger.totalOf(balances),
-                isLoading = false,
+class HomeViewModel(
+    accountRepository: AccountRepository,
+) : ViewModel() {
+    val uiState: StateFlow<HomeUiState> =
+        accountRepository
+            .observeAccountBalances()
+            .map { balances ->
+                HomeUiState(
+                    accounts = balances,
+                    totalBalanceMinorUnits = Ledger.totalOf(balances),
+                    isLoading = false,
+                )
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
+                initialValue = HomeUiState(),
             )
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
-            initialValue = HomeUiState(),
-        )
 
     companion object {
         private const val STOP_TIMEOUT_MILLIS = 5_000L
 
-        fun factory(repository: AccountRepository): ViewModelProvider.Factory = viewModelFactory {
-            initializer { HomeViewModel(repository) }
-        }
+        fun factory(repository: AccountRepository): ViewModelProvider.Factory =
+            viewModelFactory {
+                initializer { HomeViewModel(repository) }
+            }
     }
 }
 

@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 /** Reads and writes [AccountEntity] rows. Archived Accounts are hidden from pickers by default. */
 @Dao
 interface AccountDao {
-
     /** The active (non-Archived) Accounts, ordered by name. */
     @Query("SELECT * FROM accounts WHERE archived = 0 ORDER BY name COLLATE NOCASE ASC")
     fun observeActive(): Flow<List<AccountEntity>>

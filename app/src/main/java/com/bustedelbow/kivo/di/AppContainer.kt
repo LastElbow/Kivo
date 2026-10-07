@@ -11,18 +11,20 @@ import com.bustedelbow.kivo.data.repository.CategoryRepository
  *
  * It owns the process-wide collaborators and is created once, from [com.bustedelbow.kivo.KivoApplication].
  */
-class AppContainer(context: Context) {
-
-    val database: KivoDatabase = Room.databaseBuilder(
-        context.applicationContext,
-        KivoDatabase::class.java,
-        KivoDatabase.NAME,
-    )
-        .addCallback(KivoDatabase.seedCallback)
-        // Development-only: the schema is still changing and the pre-release database holds no
-        // user data. Replace with real Migrations once the schema stabilises and data matters.
-        .fallbackToDestructiveMigration(dropAllTables = true)
-        .build()
+class AppContainer(
+    context: Context,
+) {
+    val database: KivoDatabase =
+        Room
+            .databaseBuilder(
+                context.applicationContext,
+                KivoDatabase::class.java,
+                KivoDatabase.NAME,
+            ).addCallback(KivoDatabase.seedCallback)
+            // Development-only: the schema is still changing and the pre-release database holds no
+            // user data. Replace with real Migrations once the schema stabilises and data matters.
+            .fallbackToDestructiveMigration(dropAllTables = true)
+            .build()
 
     val accountRepository: AccountRepository =
         AccountRepository(database.accountDao(), database.entryDao())

@@ -11,7 +11,10 @@ import com.bustedelbow.kivo.ui.format.formatPhp
 
 /** One Account with its name, type and derived Balance, as listed on Home and Accounts. */
 @Composable
-fun AccountRow(accountBalance: AccountBalance, modifier: Modifier = Modifier) {
+fun AccountRow(
+    accountBalance: AccountBalance,
+    modifier: Modifier = Modifier,
+) {
     ListItem(
         modifier = modifier,
         headlineContent = { Text(text = accountBalance.account.name) },

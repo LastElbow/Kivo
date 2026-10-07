@@ -21,7 +21,6 @@ import com.bustedelbow.kivo.data.local.seed.DefaultCategories
     exportSchema = false,
 )
 abstract class KivoDatabase : RoomDatabase() {
-
     abstract fun accountDao(): AccountDao
 
     abstract fun categoryDao(): CategoryDao
@@ -36,22 +35,24 @@ abstract class KivoDatabase : RoomDatabase() {
          * so a fresh install can record an Entry straight away (issue #3). Seeding on open rather
          * than on create also covers a database rebuilt by the destructive fallback below.
          */
-        val seedCallback = object : Callback() {
-            override fun onOpen(db: SupportSQLiteDatabase) {
-                super.onOpen(db)
-                if (categoryCount(db) == 0L) {
-                    DefaultCategories.all.forEach { category ->
-                        db.execSQL(
-                            "INSERT INTO categories (name, type, archived) VALUES (?, ?, 0)",
-                            arrayOf(category.name, category.type.name),
-                        )
+        val seedCallback =
+            object : Callback() {
+                override fun onOpen(db: SupportSQLiteDatabase) {
+                    super.onOpen(db)
+                    if (categoryCount(db) == 0L) {
+                        DefaultCategories.all.forEach { category ->
+                            db.execSQL(
+                                "INSERT INTO categories (name, type, archived) VALUES (?, ?, 0)",
+                                arrayOf(category.name, category.type.name),
+                            )
+                        }
                     }
                 }
             }
-        }
 
         private fun categoryCount(db: SupportSQLiteDatabase): Long =
-            db.compileStatement("SELECT COUNT(*) FROM categories")
+            db
+                .compileStatement("SELECT COUNT(*) FROM categories")
                 .use { it.simpleQueryForLong() }
     }
 }

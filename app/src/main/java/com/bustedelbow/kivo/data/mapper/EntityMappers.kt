@@ -18,54 +18,61 @@ import com.bustedelbow.kivo.domain.model.TransferEntry
  * Translates between Room rows and the domain types, keeping domain types out of the entities.
  * Enum columns are stored as their `name`, so these are the only places that know the encoding.
  */
-fun AccountEntity.toDomain(): Account = Account(
-    id = id,
-    name = name,
-    type = AccountType.valueOf(type),
-    openingBalanceMinorUnits = openingBalanceMinorUnits,
-    archived = archived,
-)
-
-fun CategoryEntity.toDomain(): Category = Category(
-    id = id,
-    name = name,
-    type = CategoryType.valueOf(type),
-    archived = archived,
-)
-
-fun EntryEntity.toDomain(): Entry = when (EntryType.valueOf(type)) {
-    EntryType.EXPENSE -> ExpenseEntry(
+fun AccountEntity.toDomain(): Account =
+    Account(
         id = id,
-        accountId = accountId,
-        categoryId = requireNotNull(categoryId) { "Expense entry $id has no Category" },
-        amountMinorUnits = amountMinorUnits,
-        occurredOnEpochDay = occurredOnEpochDay,
-        note = note,
+        name = name,
+        type = AccountType.valueOf(type),
+        openingBalanceMinorUnits = openingBalanceMinorUnits,
+        archived = archived,
     )
 
-    EntryType.INCOME -> IncomeEntry(
+fun CategoryEntity.toDomain(): Category =
+    Category(
         id = id,
-        accountId = accountId,
-        categoryId = requireNotNull(categoryId) { "Income entry $id has no Category" },
-        amountMinorUnits = amountMinorUnits,
-        occurredOnEpochDay = occurredOnEpochDay,
-        note = note,
+        name = name,
+        type = CategoryType.valueOf(type),
+        archived = archived,
     )
 
-    EntryType.TRANSFER -> TransferEntry(
-        id = id,
-        fromAccountId = accountId,
-        toAccountId = requireNotNull(counterAccountId) { "Transfer entry $id has no destination" },
-        amountMinorUnits = amountMinorUnits,
-        occurredOnEpochDay = occurredOnEpochDay,
-        note = note,
-    )
+fun EntryEntity.toDomain(): Entry =
+    when (EntryType.valueOf(type)) {
+        EntryType.EXPENSE ->
+            ExpenseEntry(
+                id = id,
+                accountId = accountId,
+                categoryId = requireNotNull(categoryId) { "Expense entry $id has no Category" },
+                amountMinorUnits = amountMinorUnits,
+                occurredOnEpochDay = occurredOnEpochDay,
+                note = note,
+            )
 
-    EntryType.ADJUSTMENT -> AdjustmentEntry(
-        id = id,
-        accountId = accountId,
-        deltaMinorUnits = amountMinorUnits,
-        occurredOnEpochDay = occurredOnEpochDay,
-        note = note,
-    )
-}
+        EntryType.INCOME ->
+            IncomeEntry(
+                id = id,
+                accountId = accountId,
+                categoryId = requireNotNull(categoryId) { "Income entry $id has no Category" },
+                amountMinorUnits = amountMinorUnits,
+                occurredOnEpochDay = occurredOnEpochDay,
+                note = note,
+            )
+
+        EntryType.TRANSFER ->
+            TransferEntry(
+                id = id,
+                fromAccountId = accountId,
+                toAccountId = requireNotNull(counterAccountId) { "Transfer entry $id has no destination" },
+                amountMinorUnits = amountMinorUnits,
+                occurredOnEpochDay = occurredOnEpochDay,
+                note = note,
+            )
+
+        EntryType.ADJUSTMENT ->
+            AdjustmentEntry(
+                id = id,
+                accountId = accountId,
+                deltaMinorUnits = amountMinorUnits,
+                occurredOnEpochDay = occurredOnEpochDay,
+                note = note,
+            )
+    }

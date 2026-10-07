@@ -55,26 +55,29 @@ private fun AccountsContent(
         when {
             uiState.isLoading -> LoadingState()
 
-            uiState.accounts.isEmpty() -> EmptyAccountsState(
-                title = stringResource(R.string.accounts_empty_title),
-                body = stringResource(R.string.accounts_empty_body),
-                action = stringResource(R.string.accounts_empty_action),
-                onAction = onAddAccount,
-            )
+            uiState.accounts.isEmpty() ->
+                EmptyAccountsState(
+                    title = stringResource(R.string.accounts_empty_title),
+                    body = stringResource(R.string.accounts_empty_body),
+                    action = stringResource(R.string.accounts_empty_action),
+                    onAction = onAddAccount,
+                )
 
-            else -> LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-            ) {
-                items(uiState.accounts, key = { it.account.id }) { AccountRow(it) }
-            }
+            else ->
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                ) {
+                    items(uiState.accounts, key = { it.account.id }) { AccountRow(it) }
+                }
         }
 
         FloatingActionButton(
             onClick = onAddAccount,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp),
+            modifier =
+                Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp),
         ) {
             Icon(
                 imageVector = Icons.Filled.Add,

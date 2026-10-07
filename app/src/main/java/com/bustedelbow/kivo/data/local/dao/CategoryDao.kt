@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.Flow
 /** Reads [CategoryEntity] rows. The default set is seeded on first creation. */
 @Dao
 interface CategoryDao {
-
     /** The active (non-Archived) Categories, ordered by name. */
     @Query("SELECT * FROM categories WHERE archived = 0 ORDER BY name COLLATE NOCASE ASC")
     fun observeActive(): Flow<List<CategoryEntity>>

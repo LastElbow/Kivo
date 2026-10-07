@@ -7,3 +7,8 @@ insert_final_newline = true
 indent_style = space
 indent_size = 4
 trim_trailing_whitespace = true
+
+[*.{kt,kts}]
+ktlint_code_style = official
+# Compose screen composables are PascalCase by convention; keep them that way.
+ktlint_function_naming_ignore_when_annotated_with = Composable

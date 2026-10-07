@@ -19,24 +19,26 @@ import kotlinx.coroutines.launch
  * Drives Accounts: the list with derived Balances (ADR-0002) and Account creation (name, type,
  * Opening balance).
  */
-class AccountsViewModel(private val accountRepository: AccountRepository) : ViewModel() {
-
+class AccountsViewModel(
+    private val accountRepository: AccountRepository,
+) : ViewModel() {
     private val isCreateDialogVisible = MutableStateFlow(false)
 
-    val uiState: StateFlow<AccountsUiState> = combine(
-        accountRepository.observeAccountBalances(),
-        isCreateDialogVisible,
-    ) { balances, dialogVisible ->
-        AccountsUiState(
-            accounts = balances,
-            isLoading = false,
-            isCreateDialogVisible = dialogVisible,
+    val uiState: StateFlow<AccountsUiState> =
+        combine(
+            accountRepository.observeAccountBalances(),
+            isCreateDialogVisible,
+        ) { balances, dialogVisible ->
+            AccountsUiState(
+                accounts = balances,
+                isLoading = false,
+                isCreateDialogVisible = dialogVisible,
+            )
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
+            initialValue = AccountsUiState(),
         )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
-        initialValue = AccountsUiState(),
-    )
 
     fun showCreateDialog() {
         isCreateDialogVisible.value = true
@@ -56,9 +58,10 @@ class AccountsViewModel(private val accountRepository: AccountRepository) : View
     companion object {
         private const val STOP_TIMEOUT_MILLIS = 5_000L
 
-        fun factory(repository: AccountRepository): ViewModelProvider.Factory = viewModelFactory {
-            initializer { AccountsViewModel(repository) }
-        }
+        fun factory(repository: AccountRepository): ViewModelProvider.Factory =
+            viewModelFactory {
+                initializer { AccountsViewModel(repository) }
+            }
     }
 }
 

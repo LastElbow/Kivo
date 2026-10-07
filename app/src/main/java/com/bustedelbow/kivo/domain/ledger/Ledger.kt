@@ -14,37 +14,48 @@ import com.bustedelbow.kivo.domain.model.TransferEntry
  * stores nothing. It touches no Android or database types, so it is unit-testable on the JVM.
  */
 object Ledger {
-
     /** The signed change [entry] applies to [accountId], or 0 when it does not touch it. */
-    fun deltaFor(entry: Entry, accountId: Long): Long = when (entry) {
-        is ExpenseEntry -> if (entry.accountId == accountId) -entry.amountMinorUnits else 0
-        is IncomeEntry -> if (entry.accountId == accountId) entry.amountMinorUnits else 0
-        is AdjustmentEntry -> if (entry.accountId == accountId) entry.deltaMinorUnits else 0
-        is TransferEntry -> when (accountId) {
-            entry.fromAccountId -> -entry.amountMinorUnits
-            entry.toAccountId -> entry.amountMinorUnits
-            else -> 0
+    fun deltaFor(
+        entry: Entry,
+        accountId: Long,
+    ): Long =
+        when (entry) {
+            is ExpenseEntry -> if (entry.accountId == accountId) -entry.amountMinorUnits else 0
+            is IncomeEntry -> if (entry.accountId == accountId) entry.amountMinorUnits else 0
+            is AdjustmentEntry -> if (entry.accountId == accountId) entry.deltaMinorUnits else 0
+            is TransferEntry ->
+                when (accountId) {
+                    entry.fromAccountId -> -entry.amountMinorUnits
+                    entry.toAccountId -> entry.amountMinorUnits
+                    else -> 0
+                }
         }
-    }
 
     /** The derived Balance of [account] given every Entry it may be affected by. */
-    fun balanceOf(account: Account, entries: List<Entry>): Long =
-        account.openingBalanceMinorUnits + entries.sumOf { deltaFor(it, account.id) }
+    fun balanceOf(
+        account: Account,
+        entries: List<Entry>,
+    ): Long = account.openingBalanceMinorUnits + entries.sumOf { deltaFor(it, account.id) }
 
     /** Every Account paired with its derived Balance, in the order given. */
-    fun balancesOf(accounts: List<Account>, entries: List<Entry>): List<AccountBalance> =
-        accounts.map { AccountBalance(account = it, balanceMinorUnits = balanceOf(it, entries)) }
+    fun balancesOf(
+        accounts: List<Account>,
+        entries: List<Entry>,
+    ): List<AccountBalance> = accounts.map { AccountBalance(account = it, balanceMinorUnits = balanceOf(it, entries)) }
 
     /** The total Balance across active Accounts; Archived Accounts are excluded (ADR-0004). */
-    fun totalOf(balances: List<AccountBalance>): Long =
-        balances.filterNot { it.account.archived }.sumOf { it.balanceMinorUnits }
+    fun totalOf(balances: List<AccountBalance>): Long = balances.filterNot { it.account.archived }.sumOf { it.balanceMinorUnits }
 
     /**
      * The Spend in [period]: the sum of Expense Entries inside it. Transfers and Adjustments are
      * never Spend (GLOSSARY: Spend).
      */
-    fun spendOf(entries: List<Entry>, period: Period): Long =
-        entries.filterIsInstance<ExpenseEntry>()
+    fun spendOf(
+        entries: List<Entry>,
+        period: Period,
+    ): Long =
+        entries
+            .filterIsInstance<ExpenseEntry>()
             .filter { period.contains(it.occurredOnEpochDay) }
             .sumOf { it.amountMinorUnits }
 }
