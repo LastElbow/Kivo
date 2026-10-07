@@ -13,13 +13,13 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -80,8 +80,13 @@ internal fun SettingsContent(
                 .padding(contentPadding),
     ) {
         // The Scaffold already applied the system-bar insets, so the bar itself adds none.
-        LargeTopAppBar(
-            title = { Text(text = stringResource(R.string.destination_settings)) },
+        TopAppBar(
+            title = {
+                Text(
+                    text = stringResource(R.string.destination_settings),
+                    style = KivoType.emphasized.titleLarge,
+                )
+            },
             windowInsets = WindowInsets(0, 0, 0, 0),
         )
         Column(

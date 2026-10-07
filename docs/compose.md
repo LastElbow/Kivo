@@ -20,6 +20,6 @@ Swap the module path for `androidx.compose.foundation`, `androidx.compose.ui` an
 
 ## Verified against 1.4.0
 
-- **App bars.** `TopAppBar`, `MediumTopAppBar`, `LargeTopAppBar`, `AppBarRow` and `AppBarColumn` are public. `MediumFlexibleTopAppBar` and `LargeFlexibleTopAppBar` are `internal`, so the public large app bar is `LargeTopAppBar` — what Home and Settings use.
+- **App bars.** `TopAppBar`, `MediumTopAppBar`, `LargeTopAppBar`, `AppBarRow` and `AppBarColumn` are public. `MediumFlexibleTopAppBar` and `LargeFlexibleTopAppBar` are `internal`, so the public large app bar is `LargeTopAppBar`. Kivo's screens use the compact `TopAppBar` (Accounts, Settings), whose reserved height keeps content starting at the top; Home carries no app bar — its hero card is the heading.
 - **List rows.** `ListItemDefaults.colors()` resolves its container colour from `ListTokens.ListItemContainerColor`, the opaque `surface` role, which paints over any container wrapped around the row. Give the row `ListItemDefaults.colors(containerColor = Color.Transparent)` and the container shows through, as Accounts and Home both do.
 - **Theme and motion.** `MaterialExpressiveTheme`, `MotionScheme`, the expressive colour schemes, the emphasized type getters and `MaterialShapes` are `internal`; `KivoTheme`, `KivoMotion` and `KivoType` hand-author them instead (ADR-0005, ADR-0007).
