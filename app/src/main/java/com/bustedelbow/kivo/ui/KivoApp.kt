@@ -1,7 +1,6 @@
 package com.bustedelbow.kivo.ui
 
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -28,7 +27,9 @@ import com.bustedelbow.kivo.ui.settings.SettingsScreen
 
 /**
  * The app shell: a [Scaffold] with a bottom navigation bar over a [NavHost] of the three top-level
- * destinations. It provides the [LocalAppContainer] every screen reads its repositories from.
+ * destinations. It provides the [LocalAppContainer] every screen reads its repositories from, and
+ * hands each screen the Scaffold's [androidx.compose.foundation.layout.PaddingValues] so content
+ * can scroll behind the system bars.
  */
 @Composable
 fun KivoApp(modifier: Modifier = Modifier) {
@@ -42,17 +43,22 @@ fun KivoApp(modifier: Modifier = Modifier) {
             NavHost(
                 navController = navController,
                 startDestination = KivoDestination.HOME.route,
-                modifier = Modifier.padding(innerPadding),
+                modifier = Modifier.fillMaxSize(),
             ) {
                 composable(KivoDestination.HOME.route) {
                     HomeScreen(
+                        contentPadding = innerPadding,
                         onCreateAccount = {
                             navController.navigateToTopLevel(KivoDestination.ACCOUNTS)
                         },
                     )
                 }
-                composable(KivoDestination.ACCOUNTS.route) { AccountsScreen() }
-                composable(KivoDestination.SETTINGS.route) { SettingsScreen() }
+                composable(KivoDestination.ACCOUNTS.route) {
+                    AccountsScreen(contentPadding = innerPadding)
+                }
+                composable(KivoDestination.SETTINGS.route) {
+                    SettingsScreen(contentPadding = innerPadding)
+                }
             }
         }
     }

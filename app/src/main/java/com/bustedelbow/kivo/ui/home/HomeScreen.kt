@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,6 +26,7 @@ import com.bustedelbow.kivo.ui.LocalAppContainer
 import com.bustedelbow.kivo.ui.components.AccountRow
 import com.bustedelbow.kivo.ui.components.EmptyAccountsState
 import com.bustedelbow.kivo.ui.components.LoadingState
+import com.bustedelbow.kivo.ui.components.withGutters
 import com.bustedelbow.kivo.ui.format.formatPhp
 
 /**
@@ -33,6 +35,7 @@ import com.bustedelbow.kivo.ui.format.formatPhp
  */
 @Composable
 fun HomeScreen(
+    contentPadding: PaddingValues,
     onCreateAccount: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -40,12 +43,18 @@ fun HomeScreen(
         viewModel(factory = HomeViewModel.factory(LocalAppContainer.current.accountRepository))
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    HomeContent(uiState = uiState, onCreateAccount = onCreateAccount, modifier = modifier)
+    HomeContent(
+        uiState = uiState,
+        contentPadding = contentPadding,
+        onCreateAccount = onCreateAccount,
+        modifier = modifier,
+    )
 }
 
 @Composable
 private fun HomeContent(
     uiState: HomeUiState,
+    contentPadding: PaddingValues,
     onCreateAccount: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -58,13 +67,16 @@ private fun HomeContent(
                 body = stringResource(R.string.home_empty_body),
                 action = stringResource(R.string.home_empty_action),
                 onAction = onCreateAccount,
-                modifier = modifier,
+                modifier = modifier.padding(contentPadding),
             )
 
         else ->
             LazyColumn(
-                modifier = modifier.fillMaxSize(),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
+                modifier =
+                    modifier
+                        .fillMaxSize()
+                        .consumeWindowInsets(contentPadding),
+                contentPadding = contentPadding.withGutters(horizontal = 16.dp, vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 item(key = "total") { TotalBalanceCard(uiState.totalBalanceMinorUnits) }
