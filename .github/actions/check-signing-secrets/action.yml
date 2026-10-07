@@ -1,0 +1,35 @@
+name: Check release signing secrets
+description: Verifies the four RELEASE_* repository secrets are set and non-empty. Fails or warns, per input.
+
+inputs:
+  fail-on-missing:
+    description: Set to 'true' to exit non-zero when a secret is missing or empty; anything else only emits a workflow warning.
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - name: Check the four RELEASE_* secrets
+      shell: bash
+      env:
+        FAIL_ON_MISSING: ${{ inputs.fail-on-missing }}
+        KEYSTORE: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+        STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+        KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+        KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+      run: |
+        missing=''
+        [ -n "$KEYSTORE" ] || missing="$missing RELEASE_KEYSTORE_BASE64"
+        [ -n "$STORE_PASSWORD" ] || missing="$missing RELEASE_STORE_PASSWORD"
+        [ -n "$KEY_ALIAS" ] || missing="$missing RELEASE_KEY_ALIAS"
+        [ -n "$KEY_PASSWORD" ] || missing="$missing RELEASE_KEY_PASSWORD"
+        if [ -z "$missing" ]; then
+          echo "All four release signing secrets are present."
+          exit 0
+        fi
+        if [ "$FAIL_ON_MISSING" = 'true' ]; then
+          echo "::error::Repository secrets not set:$missing (see docs/releasing.md)"
+          exit 1
+        fi
+        echo "::warning::Release signing secrets are missing or empty:$missing — a tagged release would stop at its guard step (see docs/releasing.md)"

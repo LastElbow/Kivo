@@ -73,14 +73,9 @@ Base64 is only there to move a binary file through a text field; it is not prote
    git push origin v1.0.0
    ```
 
-The tag starts `.github/workflows/release.yml`, which:
+The tag starts `.github/workflows/release.yml`. Its contract is: nothing unsigned or untested gets published. It fails fast when a secret is missing, builds only if lint, ktlint and the tests pass, then verifies the APK two ways — a signature check with `apksigner` and a check that the APK's `versionName` matches the tag — before attaching the APK to the GitHub Release (re-uploading with `--clobber` on a retry) and keeping the R8 `mapping.txt` as a workflow artifact. The step-by-step lives in the workflow file itself; this paragraph states the guarantee, so the two cannot drift apart on details.
 
-1. fails if any of the four secrets is missing,
-2. decodes the keystore into `$RUNNER_TEMP`,
-3. runs `./gradlew :app:assembleRelease :app:check` — the release build is only published if lint, ktlint and the tests pass,
-4. renames the APK to `kivo-<tag without v>.apk` and checks the signature with `apksigner verify --print-certs`, so a mis-signed or unsigned artifact stops the job,
-5. uploads `mapping.txt` as the `r8-mapping-<tag>` workflow artifact — R8 obfuscates the release build, so a user's stack trace needs that file with `retrace` before it reads as anything,
-6. creates the GitHub Release with generated notes, or re-uploads the APK with `--clobber` if the release already exists.
+The `r8-mapping-<tag>` artifact is downloadable by anyone who can read the repository, and this repository is public — treat the mapping as published alongside the APK. That is the point: an obfuscated stack trace from a user needs that exact file with `retrace` before it reads as anything.
 
 To release an existing tag, or to retry after a failure, run the workflow by hand:
 

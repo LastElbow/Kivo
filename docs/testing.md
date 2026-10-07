@@ -51,6 +51,16 @@ Remove-Item ../Kivo-verify -Recurse -Force -ErrorAction SilentlyContinue
 Remove-Item $empty -Recurse -Force -ErrorAction SilentlyContinue
 ```
 
+## Verifying on a device
+
+The attached device may be the maintainer's personal phone, holding real data in this local-first app. Prefer an emulator or a Gradle-managed device. If you install on the attached device:
+
+- update in place with `adb install -r`; never uninstall, which wipes the database,
+- check what is installed first — `adb shell dumpsys package com.bustedelbow.kivo`, looking for `DEBUGGABLE` and the signing certificate,
+- put back the previous build when you finish.
+
+Builds signed with different keys cannot update each other: a production-signed release APK will not install over a debug-signed build, so treat any reinstall across signatures as data loss until proven otherwise.
+
 ## Where each kind of test lives
 
 - **Domain** — `app/src/test/.../domain/`: pure maths, no Android.
