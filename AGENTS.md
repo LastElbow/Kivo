@@ -27,3 +27,7 @@ Run `./gradlew :app:check` before calling work done: it runs lint, ktlint and th
 A `NoSuchFileException` or `EOFException` from `:app:testDebugUnitTest` is a build-directory race between two Gradle builds sharing `app/build`; delete `app/build/test-results/testDebugUnitTest` and re-run, because the tests themselves have not failed.
 
 If files you did not touch change or fail to compile, another session may share this checkout. Verify in an isolated `git worktree` rather than the shared tree — see "Verifying in isolation" in `docs/testing.md`.
+
+## Releasing
+
+Releases are signed APKs attached to GitHub Releases, built and published by `.github/workflows/release.yml` when a `v*` tag is pushed. Signing material lives in repository secrets and never in the tree; `docs/releasing.md` covers the keystore, the four `RELEASE_*` variables the build reads, and the tag-to-release flow.

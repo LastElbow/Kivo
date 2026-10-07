@@ -5,6 +5,17 @@ plugins {
     alias(libs.plugins.ktlint)
 }
 
+// Release signing is supplied through the environment so the keystore never enters the
+// repository: CI decodes it from repository secrets, and a local release build sets the same
+// variables. Missing any of them leaves `assembleRelease` unsigned. See docs/releasing.md.
+val releaseKeystorePath = providers.environmentVariable("RELEASE_KEYSTORE_PATH").orNull
+val releaseStorePassword = providers.environmentVariable("RELEASE_STORE_PASSWORD").orNull
+val releaseKeyAlias = providers.environmentVariable("RELEASE_KEY_ALIAS").orNull
+val releaseKeyPassword = providers.environmentVariable("RELEASE_KEY_PASSWORD").orNull
+val hasReleaseSigning =
+    listOf(releaseKeystorePath, releaseStorePassword, releaseKeyAlias, releaseKeyPassword)
+        .all { !it.isNullOrBlank() }
+
 android {
     namespace = "com.bustedelbow.kivo"
     compileSdk {
@@ -16,15 +27,30 @@ android {
         minSdk = 28
         targetSdk = 37
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = file(releaseKeystorePath!!)
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
+    }
     buildTypes {
         release {
+            signingConfigs.findByName("release")?.let { signingConfig = it }
+            // R8: code shrinking, obfuscation and resource optimization, with the
+            // proguard-android-optimize defaults (see keepRules.includeDefault). Keep rules
+            // live in app/src/main/keepRules/. A runtime failure here is a release blocker:
+            // install the built APK and open the app before tagging.
             optimization {
-                enable = false
+                enable = true
             }
         }
     }
