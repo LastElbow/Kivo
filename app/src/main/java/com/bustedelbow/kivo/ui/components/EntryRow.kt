@@ -1,6 +1,8 @@
 package com.bustedelbow.kivo.ui.components
 
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemColors
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -13,14 +15,19 @@ import com.bustedelbow.kivo.ui.theme.KivoType
 /**
  * One Entry in Home's recent history: its leading type shape, its Category and Account names, and
  * the signed amount rendered emphasized in tabular figures (GLOSSARY: Entry).
+ *
+ * [colors] defaults to the list item's own opaque container. A caller that puts the row inside a
+ * segment container passes a transparent container colour so that container shows through.
  */
 @Composable
 fun EntryRow(
     summary: EntrySummary,
     modifier: Modifier = Modifier,
+    colors: ListItemColors = ListItemDefaults.colors(),
 ) {
     ListItem(
         modifier = modifier,
+        colors = colors,
         leadingContent = { LeadingTypeShape(iconRes = summary.entry.iconRes()) },
         headlineContent = {
             Text(text = summary.categoryName ?: stringResource(R.string.entry_uncategorised))

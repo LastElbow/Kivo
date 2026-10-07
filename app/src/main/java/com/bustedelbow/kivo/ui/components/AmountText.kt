@@ -48,6 +48,11 @@ fun Entry.amountKind(): AmountKind =
  * The one place every amount is drawn: tabular figures stop its digits shifting as the value
  * changes, [kind] supplies the sign and colour, and rows and summaries pass [style] to emphasize
  * the amount.
+ *
+ * [color] overrides the colour [kind] would pick. An amount sitting on a container other than the
+ * body surface needs that container's paired `on*` role — the hero Balance card draws on
+ * `primaryContainer`, so it passes `onPrimaryContainer`. The sign never changes with the colour, so
+ * Income and Expense still read without it.
  */
 @Composable
 fun AmountText(
@@ -55,11 +60,12 @@ fun AmountText(
     kind: AmountKind,
     modifier: Modifier = Modifier,
     style: TextStyle = MaterialTheme.typography.titleMedium,
+    color: Color? = null,
 ) {
     Text(
         text = kind.format(amountMinorUnits),
         modifier = modifier,
-        color = kind.color(),
+        color = color ?: kind.color(),
         style = style.withTabularFigures(),
     )
 }

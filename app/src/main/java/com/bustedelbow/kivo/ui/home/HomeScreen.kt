@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,15 +17,19 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Card
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -36,19 +41,38 @@ import com.bustedelbow.kivo.ui.LocalAppContainer
 import com.bustedelbow.kivo.ui.components.AccountRow
 import com.bustedelbow.kivo.ui.components.AmountKind
 import com.bustedelbow.kivo.ui.components.AmountText
+import com.bustedelbow.kivo.ui.components.AnimatedAmountText
 import com.bustedelbow.kivo.ui.components.EmptyAccountsState
 import com.bustedelbow.kivo.ui.components.EntryRow
 import com.bustedelbow.kivo.ui.components.LoadingState
-import com.bustedelbow.kivo.ui.components.withGutters
 import com.bustedelbow.kivo.ui.theme.KivoType
+import com.bustedelbow.kivo.ui.theme.rememberReducedMotion
 
 /** Stable tag for Home's scrolling list, shared with UI tests. */
 internal const val HOME_LIST_TEST_TAG = "home_list"
 
+/** Home's own gutters, applied once the Scaffold's system-bar insets are already in place. */
+private val ListGutters = 16.dp
+
+/** The gap between the segmented rows of one section (M3 groups contained lists with gaps). */
+private val SegmentGap = 8.dp
+
+/** The gap that separates one section from the next; larger than [SegmentGap], and never a divider. */
+private val SectionGap = 16.dp
+
+/** Room under the last row for the extended FAB: its 56dp plus its 16dp margin, plus a breather. */
+private val ListBottomPadding = 88.dp
+
+/** The hero card's own padding; its nested containers take the radius this implies. */
+private val HeroPadding = 8.dp
+
+/** The inset the hero's Balance content and its nested week summary sit at, inside [HeroPadding]. */
+private val HeroContentPadding = 16.dp
+
 /**
  * Home: the total across active Accounts, this Week's Spend and Income, the Account list, and
  * recent history, or an empty state that guides a fresh install to create its first Account
- * (issues #3, #4).
+ * (issues #3, #4; redesigned in #9).
  */
 @Composable
 fun HomeScreen(
@@ -71,6 +95,12 @@ fun HomeScreen(
     )
 }
 
+/**
+ * The redesigned Home (issue #9): a large app bar over a hero `primaryContainer` Balance card that
+ * counts up, a tonal week summary nested inside it, and the Accounts and Recent sections as
+ * segmented contained rows separated by gaps. The extended FAB sits above the navigation bar.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun HomeContent(
     uiState: HomeUiState,
@@ -78,61 +108,101 @@ internal fun HomeContent(
     onCreateAccount: () -> Unit,
     onAddEntry: () -> Unit,
     modifier: Modifier = Modifier,
+    reducedMotion: Boolean = rememberReducedMotion(),
 ) {
-    when {
-        uiState.isLoading -> LoadingState(modifier)
+    Column(
+        modifier =
+            modifier
+                .fillMaxSize()
+                .consumeWindowInsets(contentPadding)
+                .padding(contentPadding),
+    ) {
+        LargeTopAppBar(
+            title = {
+                Text(
+                    text = stringResource(R.string.app_name),
+                    style = KivoType.emphasized.headlineMedium,
+                )
+            },
+            // The Scaffold already applied the system-bar insets, so the bar itself adds none.
+            windowInsets = WindowInsets(0, 0, 0, 0),
+        )
 
-        uiState.accounts.isEmpty() ->
-            EmptyAccountsState(
-                title = stringResource(R.string.home_empty_title),
-                body = stringResource(R.string.home_empty_body),
-                action = stringResource(R.string.home_empty_action),
-                onAction = onCreateAccount,
-                modifier = modifier.padding(contentPadding),
-            )
+        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+            when {
+                uiState.isLoading -> LoadingState()
 
-        else ->
-            Box(modifier = modifier.fillMaxSize()) {
-                LazyColumn(
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .consumeWindowInsets(contentPadding)
-                            .testTag(HOME_LIST_TEST_TAG),
-                    contentPadding = contentPadding.withGutters(horizontal = 16.dp, vertical = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
-                    item(key = "total") { TotalBalanceCard(uiState.totalBalanceMinorUnits) }
-                    item(key = "week") {
-                        WeekSummaryCard(
-                            spendMinorUnits = uiState.spendMinorUnits,
-                            incomeMinorUnits = uiState.incomeMinorUnits,
-                        )
+                uiState.accounts.isEmpty() ->
+                    EmptyAccountsState(
+                        title = stringResource(R.string.home_empty_title),
+                        body = stringResource(R.string.home_empty_body),
+                        action = stringResource(R.string.home_empty_action),
+                        onAction = onCreateAccount,
+                    )
+
+                else -> {
+                    LazyColumn(
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .testTag(HOME_LIST_TEST_TAG),
+                        contentPadding =
+                            PaddingValues(
+                                start = ListGutters,
+                                top = ListGutters,
+                                end = ListGutters,
+                                bottom = ListBottomPadding,
+                            ),
+                        verticalArrangement = Arrangement.spacedBy(SegmentGap),
+                    ) {
+                        item(key = "hero") {
+                            BalanceHero(uiState = uiState, reducedMotion = reducedMotion)
+                        }
+                        item(key = "accounts-title") { SectionTitle(stringResource(R.string.home_accounts_title)) }
+                        items(uiState.accounts, key = { "account-${it.account.id}" }) { accountBalance ->
+                            TonalContainer {
+                                AccountRow(
+                                    accountBalance = accountBalance,
+                                    // The segment is the container; the row paints none of its own.
+                                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                                )
+                            }
+                        }
+                        item(key = "recent-title") { SectionTitle(stringResource(R.string.home_recent_title)) }
+                        recentHistory(uiState.recentEntries)
                     }
-                    item(key = "accounts-title") { SectionTitle(stringResource(R.string.home_accounts_title)) }
-                    items(uiState.accounts, key = { "account-${it.account.id}" }) { AccountRow(it) }
-                    item(key = "recent-title") { SectionTitle(stringResource(R.string.home_recent_title)) }
-                    recentHistory(uiState.recentEntries)
-                }
 
-                FloatingActionButton(
-                    onClick = onAddEntry,
-                    modifier =
-                        Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(contentPadding)
-                            .padding(16.dp),
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Add,
-                        contentDescription = stringResource(R.string.home_add_entry_fab),
+                    ExtendedFloatingActionButton(
+                        onClick = onAddEntry,
+                        // The extended FAB draws its label, but material3 hides that label from
+                        // the merged semantics, so the icon carries the accessible name.
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Filled.Add,
+                                contentDescription = stringResource(R.string.home_add_entry_fab),
+                            )
+                        },
+                        text = {
+                            Text(
+                                text = stringResource(R.string.home_add_entry_fab),
+                                style = KivoType.emphasized.labelLarge,
+                            )
+                        },
+                        // The FAB is the app's most important action, so it takes the primary role.
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        modifier =
+                            Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(16.dp),
                     )
                 }
             }
+        }
     }
 }
 
-/** The recent Entries, or a prompt when there are none yet. */
+/** The recent Entries as segmented rows, or a prompt when there are none yet. */
 private fun LazyListScope.recentHistory(entries: List<EntrySummary>) {
     if (entries.isEmpty()) {
         item(key = "recent-empty") {
@@ -144,52 +214,75 @@ private fun LazyListScope.recentHistory(entries: List<EntrySummary>) {
             )
         }
     } else {
-        items(entries, key = { "entry-${it.entry.id}" }) { EntryRow(it) }
+        items(entries, key = { "entry-${it.entry.id}" }) { summary ->
+            TonalContainer {
+                EntryRow(
+                    summary = summary,
+                    // The segment is the container; the row paints none of its own.
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                )
+            }
+        }
     }
 }
 
+/**
+ * The hero Balance container: the app's one number and its hero moment. It draws the money
+ * [HomeUiState] already carries — the Balance across active Accounts and this Week's Spend and
+ * Income — rather than taking those three amounts apart at the call site.
+ *
+ * The card takes `primaryContainer` at the shape scale's largest radius, 28dp, and the week summary
+ * nested inside it is 8dp in from that edge, so it takes the nested radius the scale implies —
+ * `inner = outer − padding` = 20dp — rather than the card's own.
+ */
 @Composable
-private fun SectionTitle(
-    text: String,
+private fun BalanceHero(
+    uiState: HomeUiState,
+    reducedMotion: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    Text(
-        text = text,
-        style = KivoType.emphasized.titleMedium,
-        modifier = modifier.padding(top = 16.dp, bottom = 4.dp),
-    )
-}
-
-@Composable
-private fun TotalBalanceCard(
-    totalMinorUnits: Long,
-    modifier: Modifier = Modifier,
-) {
-    Card(modifier = modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(20.dp)) {
-            Text(
-                text = stringResource(R.string.home_total_label),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            AmountText(
-                amountMinorUnits = totalMinorUnits,
-                kind = AmountKind.NEUTRAL,
-                style = KivoType.emphasized.headlineMedium,
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge,
+        color = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+    ) {
+        Column(modifier = Modifier.padding(HeroPadding)) {
+            Column(modifier = Modifier.padding(HeroContentPadding)) {
+                Text(
+                    text = stringResource(R.string.home_total_label),
+                    style = MaterialTheme.typography.labelLarge,
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                AnimatedAmountText(
+                    amountMinorUnits = uiState.totalBalanceMinorUnits,
+                    kind = AmountKind.NEUTRAL,
+                    style = KivoType.emphasized.headlineLarge,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    reducedMotion = reducedMotion,
+                )
+            }
+            WeekSummary(
+                spendMinorUnits = uiState.spendMinorUnits,
+                incomeMinorUnits = uiState.incomeMinorUnits,
             )
         }
     }
 }
 
+/**
+ * This Week's Spend and Income as a filled tonal container nested in the hero card: Spend keeps the
+ * neutral `onSurface` colour and the typographic `−`, Income takes `tertiary` and an explicit
+ * `+`, so the sign carries the meaning even where the colour does not.
+ */
 @Composable
-private fun WeekSummaryCard(
+private fun WeekSummary(
     spendMinorUnits: Long,
     incomeMinorUnits: Long,
     modifier: Modifier = Modifier,
 ) {
-    Card(modifier = modifier.fillMaxWidth()) {
-        Row(modifier = Modifier.padding(20.dp)) {
+    TonalContainer(modifier) {
+        Row(modifier = Modifier.padding(HeroContentPadding)) {
             AmountColumn(
                 label = stringResource(R.string.home_spend_label),
                 amountMinorUnits = -spendMinorUnits,
@@ -226,4 +319,39 @@ private fun AmountColumn(
             style = KivoType.emphasized.titleLarge,
         )
     }
+}
+
+/** A section header: emphasized, and followed by the section's segmented rows. */
+@Composable
+private fun SectionTitle(
+    text: String,
+    modifier: Modifier = Modifier,
+) {
+    Text(
+        text = text,
+        style = KivoType.emphasized.titleMedium,
+        modifier = modifier.padding(top = SectionGap, bottom = 4.dp),
+    )
+}
+
+/**
+ * The filled tonal container Home nests its contained groups in: the hero's week summary, and every
+ * row of the Accounts and Recent sections. M3 holds contained lists apart with gaps rather than
+ * dividers, so these segments are separate containers with the list's spacing between them.
+ *
+ * A row inside one must be given a transparent container colour: `ListItemDefaults.colors()`
+ * resolves to the opaque `surface` token, which would paint over this fill and leave the row
+ * looking exactly like the body behind it.
+ */
+@Composable
+private fun TonalContainer(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        content = content,
+    )
 }
