@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Kivo</string>
+
+    <string name="destination_home">Home</string>
+    <string name="destination_accounts">Accounts</string>
+    <string name="destination_settings">Settings</string>
 </resources>
