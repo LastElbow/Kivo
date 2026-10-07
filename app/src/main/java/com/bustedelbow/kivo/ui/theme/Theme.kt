@@ -53,6 +53,7 @@ fun KivoTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
+        shapes = KivoShapes,
         typography = Typography,
         content = content,
     )
