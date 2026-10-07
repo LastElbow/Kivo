@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -38,6 +39,9 @@ import com.bustedelbow.kivo.ui.components.EntryRow
 import com.bustedelbow.kivo.ui.components.LoadingState
 import com.bustedelbow.kivo.ui.components.withGutters
 import com.bustedelbow.kivo.ui.format.formatPhp
+
+/** Stable tag for Home's scrolling list, shared with UI tests. */
+internal const val HOME_LIST_TEST_TAG = "home_list"
 
 /**
  * Home: the total across active Accounts, this Week's Spend and Income, the Account list, and
@@ -66,7 +70,7 @@ fun HomeScreen(
 }
 
 @Composable
-private fun HomeContent(
+internal fun HomeContent(
     uiState: HomeUiState,
     contentPadding: PaddingValues,
     onCreateAccount: () -> Unit,
@@ -91,7 +95,8 @@ private fun HomeContent(
                     modifier =
                         Modifier
                             .fillMaxSize()
-                            .consumeWindowInsets(contentPadding),
+                            .consumeWindowInsets(contentPadding)
+                            .testTag(HOME_LIST_TEST_TAG),
                     contentPadding = contentPadding.withGutters(horizontal = 16.dp, vertical = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
@@ -103,7 +108,7 @@ private fun HomeContent(
                         )
                     }
                     item(key = "accounts-title") { SectionTitle(stringResource(R.string.home_accounts_title)) }
-                    items(uiState.accounts, key = { it.account.id }) { AccountRow(it) }
+                    items(uiState.accounts, key = { "account-${it.account.id}" }) { AccountRow(it) }
                     item(key = "recent-title") { SectionTitle(stringResource(R.string.home_recent_title)) }
                     recentHistory(uiState.recentEntries)
                 }
@@ -137,7 +142,7 @@ private fun LazyListScope.recentHistory(entries: List<EntrySummary>) {
             )
         }
     } else {
-        items(entries, key = { it.entry.id }) { EntryRow(it) }
+        items(entries, key = { "entry-${it.entry.id}" }) { EntryRow(it) }
     }
 }
 
